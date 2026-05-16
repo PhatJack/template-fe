@@ -3,7 +3,7 @@ import type { Route } from "./+types/home";
 
 export function meta({}: Route.MetaArgs) {
   return [
-    { title: "New React Router AppTemplate.net | AI Generator for Fully Editable Assets" },
+    { title: "Template.net | AI Generator for Fully Editable Assets" },
     { name: "description", content: "Welcome to React Router!" },
   ];
 }
