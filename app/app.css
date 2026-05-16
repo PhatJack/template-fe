@@ -1,15 +1,54 @@
 @import "tailwindcss";
 
 @theme {
-  --font-sans: "Inter", ui-sans-serif, system-ui, sans-serif,
-    "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji";
+	--font-sans: "Inter", ui-sans-serif, system-ui, sans-serif,
+		"Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji";
+
+	--color-primary: #1E0DFF;
+	--color-primary-hover: #1A0CC2;
+	--color-primary-active: #150A99;
+	--color-secondary: #1E5AE1;
+	--color-foreground: #1F2124;
+	--color-foreground-strong: #000000;
+	--color-background: #FFFFFF;
+	--color-surface: #FFFFFF;
+	--color-muted: #6B7280;
+	--color-muted-light: #9FA7B5;
+	--color-input: #2B293F;
+	--color-accent: #D3CEFF;
+	--color-highlight: #FFEEAA;
+	--color-interactive: #161720;
+	--color-border: #CFD6DD;
+	--color-border-light: #E1E4E8;
+	--color-border-hover: #B5BCC5;
+	--color-border-active: #9FA7B5;
+	--color-muted-surface: #F9FAFE;
+	--color-soft-background: #F2F5FD;
+	--color-success: #00A63E;
+	--color-success-surface: #ECFDF5;
+	--color-success-border: #C6F6D5;
+	--color-error: #B71C22;
+	--color-error-surface: #FEF2F2;
+	--color-error-border: #FECACA;
+	--color-visited: #7C3AED;
+	--color-btn-primary-hover: #e7edfc;
+
+	--text-tiny: 0.625rem;
+	--text-tiny--line-height: 1.5rem;
+	/* --text-tiny--font-weight: 500; */
 }
 
 html,
 body {
-  @apply bg-white dark:bg-gray-950;
+	@apply bg-soft-background;
+/* 
+	@media (prefers-color-scheme: dark) {
+		color-scheme: dark;
+	} */
+}
 
-  @media (prefers-color-scheme: dark) {
-    color-scheme: dark;
-  }
+@layer components {
+	.navbar-text {
+		@apply text-tiny;
+	}
 }
