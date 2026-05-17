@@ -1,6 +1,6 @@
+import { memo, type ReactNode } from "react";
 import { cn } from "../../lib/utils";
 import {
-  ExternalLink,
   FileAudio,
   File as FileIcon,
   FileImage,
@@ -17,11 +17,34 @@ export type ChatBubbleRole = "assistant" | "user";
 
 type ChatBubbleProps = {
   role: ChatBubbleRole;
-  children: React.ReactNode;
+  children: ReactNode;
   author?: string;
   timestamp?: string;
   loading?: boolean;
   files?: FileRecord[];
+};
+
+type FileAttachmentProps = {
+  file: FileRecord;
+  isUser: boolean;
+};
+
+const markdownPlugins = [remarkGfm];
+const loadingTexts = [
+  "Analyzing your request",
+  "Thinking",
+  "Understanding your prompt",
+  "Generating response",
+  "Almost done",
+  "Preparing the final response",
+];
+const rotatingTextInitial = { y: "100%" };
+const rotatingTextAnimate = { y: 0 };
+const rotatingTextExit = { y: "-100%" };
+const rotatingTextTransition = {
+  type: "spring" as const,
+  damping: 30,
+  stiffness: 400,
 };
 
 function formatFileSize(bytes: number) {
@@ -56,7 +79,54 @@ function getFileIcon(mimeType: string) {
   return FileIcon;
 }
 
-export function ChatBubble({
+const FileAttachment = memo(function FileAttachment({
+  file,
+  isUser,
+}: FileAttachmentProps) {
+  const Icon = getFileIcon(file.mimeType);
+  const content = (
+    <>
+      <span
+        className={cn(
+          "flex size-9 shrink-0 items-center justify-center rounded-lg",
+          isUser
+            ? "bg-primary text-background"
+            : "bg-muted-surface text-muted-foreground",
+        )}
+      >
+        <Icon aria-hidden="true" className="size-4" />
+      </span>
+      <span className="min-w-0 flex-1">
+        <span className="text-foreground block truncate text-sm font-medium">
+          {file.originalName}
+        </span>
+        <span
+          className={cn(
+            "block truncate text-xs",
+            isUser ? "text-muted" : "text-muted-foreground",
+          )}
+        >
+          {formatMimeType(file.mimeType)} - {formatFileSize(file.size)}
+        </span>
+      </span>
+    </>
+  );
+
+  return (
+    <div
+      className={cn(
+        "flex max-w-full min-w-0 items-center gap-2 rounded-xl border px-3 py-2 text-left",
+        isUser
+          ? "border-border-light bg-background text-foreground"
+          : "border-border-light bg-muted-surface",
+      )}
+    >
+      {content}
+    </div>
+  );
+});
+
+export const ChatBubble = memo(function ChatBubble({
   role,
   children,
   author,
@@ -94,67 +164,9 @@ export function ChatBubble({
             isUser ? "items-end" : "items-start",
           )}
         >
-          {files?.map((file) => {
-            const Icon = getFileIcon(file.mimeType);
-            const canOpen = isWebUrl(file.url);
-            const content = (
-              <>
-                <span
-                  className={cn(
-                    "flex size-9 shrink-0 items-center justify-center rounded-lg",
-                    isUser
-                      ? "bg-primary text-background"
-                      : "bg-muted-surface text-muted-foreground",
-                  )}
-                >
-                  <Icon aria-hidden="true" className="size-4" />
-                </span>
-                <span className="min-w-0 flex-1">
-                  <span className="text-foreground block truncate text-sm font-medium">
-                    {file.originalName}
-                  </span>
-                  <span
-                    className={cn(
-                      "block truncate text-xs",
-                      isUser ? "text-muted" : "text-muted-foreground",
-                    )}
-                  >
-                    {formatMimeType(file.mimeType)} -{" "}
-                    {formatFileSize(file.size)}
-                  </span>
-                </span>
-              </>
-            );
-
-            return canOpen ? (
-              <a
-                key={file.id}
-                href={file.url}
-                target="_blank"
-                rel="noreferrer"
-                className={cn(
-                  "flex max-w-full min-w-0 items-center gap-2 rounded-xl border px-3 py-2 text-left transition-colors",
-                  isUser
-                    ? "border-border-light bg-background hover:bg-soft-background text-foreground"
-                    : "border-border-light bg-muted-surface hover:bg-soft-background",
-                )}
-              >
-                {content}
-              </a>
-            ) : (
-              <div
-                key={file.id}
-                className={cn(
-                  "flex max-w-full min-w-0 items-center gap-2 rounded-xl border px-3 py-2 text-left",
-                  isUser
-                    ? "border-border-light bg-background text-foreground"
-                    : "border-border-light bg-muted-surface",
-                )}
-              >
-                {content}
-              </div>
-            );
-          })}
+          {files?.map((file) => (
+            <FileAttachment key={file.id} file={file} isUser={isUser} />
+          ))}
         </div>
       )}
 
@@ -173,20 +185,13 @@ export function ChatBubble({
               className="text-primary size-4 animate-spin"
             />
             <RotatingText
-              texts={[
-                "Analyzing your request",
-                "Thinking",
-                "Understanding your prompt",
-                "Generating response",
-                "Almost done",
-                "Preparing the final response",
-              ]}
-              initial={{ y: "100%" }}
-              animate={{ y: 0 }}
-              exit={{ y: "-100%" }}
+              texts={loadingTexts}
+              initial={rotatingTextInitial}
+              animate={rotatingTextAnimate}
+              exit={rotatingTextExit}
               staggerDuration={0.025}
               splitLevelClassName="overflow-hidden"
-              transition={{ type: "spring", damping: 30, stiffness: 400 }}
+              transition={rotatingTextTransition}
               rotationInterval={2000}
               splitBy="words"
               auto
@@ -195,7 +200,7 @@ export function ChatBubble({
           </span>
         ) : (
           <div className="prose-sm prose-p:my-0 w-full">
-            <ReactMarkdown remarkPlugins={[remarkGfm]}>
+            <ReactMarkdown remarkPlugins={markdownPlugins}>
               {children as string}
             </ReactMarkdown>
           </div>
@@ -203,4 +208,4 @@ export function ChatBubble({
       </div>
     </div>
   );
-}
+});

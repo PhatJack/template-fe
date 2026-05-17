@@ -1,4 +1,10 @@
-import React, { useState, useRef, useCallback, useLayoutEffect } from "react";
+import React, {
+  memo,
+  useState,
+  useRef,
+  useCallback,
+  useLayoutEffect,
+} from "react";
 import { useHotkeys } from "react-hotkeys-hook";
 import {
   ChevronsLeftRight,
@@ -45,7 +51,10 @@ type ChatInputProps = {
   disabled?: boolean;
 };
 
-const ChatInput = ({ onSubmit, disabled }: ChatInputProps) => {
+const ChatInput = memo(function ChatInput({
+  onSubmit,
+  disabled,
+}: ChatInputProps) {
   const [selectedFiles, setSelectedFiles] = useState<File[]>([]);
   const [fileError, setFileError] = useState<string | null>(null);
   const [prompt, setPrompt] = useState<string>("");
@@ -55,7 +64,7 @@ const ChatInput = ({ onSubmit, disabled }: ChatInputProps) => {
   const textareaRef = useRef<HTMLTextAreaElement | null>(null);
   const fileInputRef = useRef<HTMLInputElement | null>(null);
 
-  const checkLines = () => {
+  const checkLines = useCallback(() => {
     const textarea = textareaRef.current;
     if (!textarea) return;
 
@@ -65,7 +74,7 @@ const ChatInput = ({ onSubmit, disabled }: ChatInputProps) => {
     const lines = textarea.scrollHeight / lineHeight;
 
     setIsShowExpandIcon(lines > 4);
-  };
+  }, []);
 
   const sendPrompt = useCallback(async () => {
     const value = prompt.trim();
@@ -83,32 +92,39 @@ const ChatInput = ({ onSubmit, disabled }: ChatInputProps) => {
     }
   }, [prompt, disabled, onSubmit, selectedFiles]);
 
-  const handleSubmit = async (e: React.SubmitEvent<HTMLFormElement>) => {
-    e.preventDefault();
-    await sendPrompt();
-  };
+  const handleSubmit = useCallback(
+    async (e: React.SubmitEvent<HTMLFormElement>) => {
+      e.preventDefault();
+      await sendPrompt();
+    },
+    [sendPrompt],
+  );
 
-  const resizeTextarea = (height: number) => {
+  const resizeTextarea = useCallback((height: number) => {
     const textarea = textareaRef.current;
     if (!textarea) return;
 
     textarea.style.height = `${height}px`;
-  };
+  }, []);
 
-  const handleChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
-    setPrompt(e.target.value);
+  const handleChange = useCallback(
+    (e: React.ChangeEvent<HTMLTextAreaElement>) => {
+      setPrompt(e.target.value);
 
-    requestAnimationFrame(() => {
-      checkLines();
-    });
-  };
+      requestAnimationFrame(() => {
+        checkLines();
+      });
+    },
+    [checkLines],
+  );
+
   useLayoutEffect(() => {
     if (isExpanded) {
       resizeTextarea(300);
     } else {
       resizeTextarea(60);
     }
-  }, [isExpanded]);
+  }, [isExpanded, resizeTextarea]);
 
   // Submit on Enter (without Shift) when textarea is focused
   useHotkeys(
@@ -129,35 +145,38 @@ const ChatInput = ({ onSubmit, disabled }: ChatInputProps) => {
     [sendPrompt, disabled],
   );
 
-  const onRemoveFile = (index: number) => {
+  const onRemoveFile = useCallback((index: number) => {
     setSelectedFiles((prev) => prev.filter((_, i) => i !== index));
-  };
+  }, []);
 
-  const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-    const incomingFiles = Array.from(event.target.files ?? []);
+  const handleFileChange = useCallback(
+    (event: React.ChangeEvent<HTMLInputElement>) => {
+      const incomingFiles = Array.from(event.target.files ?? []);
 
-    if (fileInputRef.current) {
-      fileInputRef.current.value = "";
-    }
+      if (fileInputRef.current) {
+        fileInputRef.current.value = "";
+      }
 
-    if (incomingFiles.length === 0) {
-      return;
-    }
+      if (incomingFiles.length === 0) {
+        return;
+      }
 
-    const unsupportedFiles = incomingFiles.filter(
-      (file) => !supportedGeminiMimeTypeSet.has(file.type),
-    );
-    const supportedFiles = incomingFiles.filter((file) =>
-      supportedGeminiMimeTypeSet.has(file.type),
-    );
+      const unsupportedFiles = incomingFiles.filter(
+        (file) => !supportedGeminiMimeTypeSet.has(file.type),
+      );
+      const supportedFiles = incomingFiles.filter((file) =>
+        supportedGeminiMimeTypeSet.has(file.type),
+      );
 
-    setSelectedFiles((prev) => [...prev, ...supportedFiles]);
-    setFileError(
-      unsupportedFiles.length
-        ? `${unsupportedFiles.map((file) => file.name).join(", ")} is not supported.`
-        : null,
-    );
-  };
+      setSelectedFiles((prev) => [...prev, ...supportedFiles]);
+      setFileError(
+        unsupportedFiles.length
+          ? `${unsupportedFiles.map((file) => file.name).join(", ")} is not supported.`
+          : null,
+      );
+    },
+    [],
+  );
 
   return (
     <form
@@ -244,6 +263,6 @@ const ChatInput = ({ onSubmit, disabled }: ChatInputProps) => {
       </div>
     </form>
   );
-};
+});
 
 export default ChatInput;
