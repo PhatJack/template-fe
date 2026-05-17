@@ -6,18 +6,54 @@ import {
   Plus,
   Sparkles,
 } from "lucide-react";
+import FileItem from "../ui/FileItem";
+
+const supportedGeminiMimeTypes = [
+  "application/pdf",
+  "text/plain",
+  "text/markdown",
+  "text/html",
+  "text/xml",
+  "application/xml",
+  "image/png",
+  "image/jpeg",
+  "image/webp",
+  "image/heic",
+  "image/heif",
+  "audio/wav",
+  "audio/mp3",
+  "audio/mpeg",
+  "audio/aiff",
+  "audio/aac",
+  "audio/ogg",
+  "audio/flac",
+  "video/mp4",
+  "video/mpeg",
+  "video/mov",
+  "video/avi",
+  "video/x-flv",
+  "video/mpg",
+  "video/webm",
+  "video/wmv",
+  "video/3gpp",
+];
+
+const supportedGeminiMimeTypeSet = new Set(supportedGeminiMimeTypes);
 
 type ChatInputProps = {
-  onSubmit?: (prompt: string) => Promise<void>;
+  onSubmit?: (prompt: string, files?: File[]) => Promise<void>;
   disabled?: boolean;
 };
 
 const ChatInput = ({ onSubmit, disabled }: ChatInputProps) => {
+  const [selectedFiles, setSelectedFiles] = useState<File[]>([]);
+  const [fileError, setFileError] = useState<string | null>(null);
   const [prompt, setPrompt] = useState<string>("");
   const [isShowExpandIcon, setIsShowExpandIcon] = useState<boolean>(false);
   const [isExpanded, setIsExpanded] = useState<boolean>(false);
 
   const textareaRef = useRef<HTMLTextAreaElement | null>(null);
+  const fileInputRef = useRef<HTMLInputElement | null>(null);
 
   const checkLines = () => {
     const textarea = textareaRef.current;
@@ -38,12 +74,14 @@ const ChatInput = ({ onSubmit, disabled }: ChatInputProps) => {
     setPrompt("");
 
     try {
-      await onSubmit?.(value);
+      setSelectedFiles([]);
+      await onSubmit?.(value, selectedFiles);
+      setFileError(null);
     } catch (err) {
       console.error(err);
       setPrompt(value);
     }
-  }, [prompt, disabled, onSubmit]);
+  }, [prompt, disabled, onSubmit, selectedFiles]);
 
   const handleSubmit = async (e: React.SubmitEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -91,6 +129,36 @@ const ChatInput = ({ onSubmit, disabled }: ChatInputProps) => {
     [sendPrompt, disabled],
   );
 
+  const onRemoveFile = (index: number) => {
+    setSelectedFiles((prev) => prev.filter((_, i) => i !== index));
+  };
+
+  const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const incomingFiles = Array.from(event.target.files ?? []);
+
+    if (fileInputRef.current) {
+      fileInputRef.current.value = "";
+    }
+
+    if (incomingFiles.length === 0) {
+      return;
+    }
+
+    const unsupportedFiles = incomingFiles.filter(
+      (file) => !supportedGeminiMimeTypeSet.has(file.type),
+    );
+    const supportedFiles = incomingFiles.filter((file) =>
+      supportedGeminiMimeTypeSet.has(file.type),
+    );
+
+    setSelectedFiles((prev) => [...prev, ...supportedFiles]);
+    setFileError(
+      unsupportedFiles.length
+        ? `${unsupportedFiles.map((file) => file.name).join(", ")} is not supported.`
+        : null,
+    );
+  };
+
   return (
     <form
       className="mx-auto w-full max-w-4xl"
@@ -101,6 +169,20 @@ const ChatInput = ({ onSubmit, disabled }: ChatInputProps) => {
         <label htmlFor="prompt" className="sr-only">
           Ask template.net
         </label>
+        {selectedFiles.length > 0 && (
+          <div className="flex items-center gap-2 px-3 py-2">
+            {selectedFiles.map((file, index) => (
+              <FileItem
+                key={index}
+                file={file}
+                onRemove={() => onRemoveFile(index)}
+              />
+            ))}
+          </div>
+        )}
+        {fileError && (
+          <p className="text-error px-3 pb-1 text-xs">{fileError}</p>
+        )}
         <div className="w-full px-3 py-2">
           <textarea
             id="prompt"
@@ -132,10 +214,22 @@ const ChatInput = ({ onSubmit, disabled }: ChatInputProps) => {
           <button
             type="button"
             aria-label="Add attachment"
-            className="text-foreground hover:bg-soft-background flex size-10 cursor-pointer items-center justify-center rounded-full transition-colors"
+            className="text-foreground hover:bg-soft-background relative flex size-10 items-center justify-center rounded-full transition-colors"
             disabled={disabled}
           >
-            <Plus aria-hidden="true" className="size-5" strokeWidth={2} />
+            <Plus
+              aria-hidden="true"
+              className="size-5 cursor-pointer"
+              strokeWidth={2}
+            />
+            <input
+              ref={fileInputRef}
+              type="file"
+              multiple
+              accept={supportedGeminiMimeTypes.join(",")}
+              className="absolute inset-0 cursor-pointer opacity-0"
+              onChange={handleFileChange}
+            />
           </button>
 
           <button

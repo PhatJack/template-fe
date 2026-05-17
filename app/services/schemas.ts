@@ -98,6 +98,7 @@ export const messageSchema = z.object({
   content: z.string(),
   createdAt: dateStringSchema,
   updatedAt: dateStringSchema.optional(),
+  files: z.array(z.lazy(() => fileSchema)).optional(),
 });
 
 export const createMessageSchema = z.object({
@@ -126,7 +127,6 @@ export const fileSchema = z.object({
   size: z.number(),
   url: z.string().min(1),
   createdAt: dateStringSchema,
-  updatedAt: dateStringSchema,
 });
 
 export const createFileSchema = z.object({

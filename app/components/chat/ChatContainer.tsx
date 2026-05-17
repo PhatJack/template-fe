@@ -1,7 +1,13 @@
 import React, { useEffect, useRef, useState } from "react";
 import ChatInput from "./ChatInput";
 import { ChatBubble } from "./ChatBubble";
-import { messageService, conversationService, type Message } from "~/services";
+import {
+  fileService,
+  messageService,
+  conversationService,
+  type FileRecord,
+  type Message,
+} from "~/services";
 import { generateFakeObjectId } from "~/lib/utils";
 import { useAuth } from "~/state/auth-context";
 
@@ -11,6 +17,7 @@ type UiMessage = {
   author: string;
   timestamp?: string;
   content: string;
+  files?: FileRecord[];
   status?: "loading" | "streaming";
 };
 
@@ -61,6 +68,7 @@ export function ChatContainer({
             author: m.role === "ASSISTANT" ? "Template.net AI" : "You",
             timestamp: m.createdAt || undefined,
             content: m.content,
+            files: m.files ?? [],
           }));
         setMessages(uiMsgs);
       } catch (err) {
@@ -79,7 +87,7 @@ export function ChatContainer({
     };
   }, []);
 
-  const handleSend = async (prompt: string) => {
+  const handleSend = async (prompt: string, files?: File[]) => {
     if (!prompt || loading) return;
     setLoading(true);
 
@@ -124,6 +132,23 @@ export function ChatContainer({
         role: "USER",
         content: prompt,
       });
+      if (files?.length) {
+        const uploadedFiles = await fileService.uploadFiles({
+          conversationId: convId!,
+          messageId: created.id,
+          files,
+        });
+        setMessages((prev) =>
+          prev.map((message) =>
+            message.id === userPlaceholderId
+              ? {
+                  ...message,
+                  files: uploadedFiles,
+                }
+              : message,
+          ),
+        );
+      }
       setMessages((prev) =>
         prev.map((message) =>
           message.id === userPlaceholderId
@@ -162,6 +187,7 @@ export function ChatContainer({
                       author: "Template.net AI",
                       timestamp: assistantMessage.createdAt,
                       content: assistantMessage.content,
+                      files: assistantMessage.files ?? [],
                     }
                   : message,
               ),
@@ -204,6 +230,7 @@ export function ChatContainer({
             author={message.author}
             timestamp={message.timestamp}
             loading={message.status === "loading"}
+            files={message.files}
           >
             {message.content}
           </ChatBubble>
