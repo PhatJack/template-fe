@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { MessageSquareText } from "lucide-react";
-import { useLocation, useNavigate } from "react-router";
+import { Link, useLocation, useNavigate } from "react-router";
 import { conversationService, type Conversation } from "~/services";
 import { useAuth } from "~/state/auth-context";
 import { cn } from "~/lib/utils";
@@ -57,7 +57,7 @@ const ConversationContainer = () => {
   }
 
   return (
-    <aside className="hidden h-full w-64 shrink-0 border-r border-border-light bg-muted-surface px-3 py-4 md:block">
+    <aside className="hidden h-full w-64 shrink-0 border-r border-border-light bg-muted-surface px-3 pb-4 md:block">
       <div className="mb-3 px-2">
         <h2 className="text-sm font-semibold text-foreground">Conversations</h2>
       </div>
@@ -76,27 +76,31 @@ const ConversationContainer = () => {
           const active = location.pathname === href;
 
           return (
-            <button
+            <Link
               key={conversation.id}
-              type="button"
-              onClick={() => navigate(href)}
-							title={conversation.title?.trim() || "Untitled conversation"}
+              to={href}
+              title={conversation.title?.trim() || "Untitled conversation"}
               className={cn(
-                "flex w-full items-center gap-2 rounded-lg px-2 py-2 text-left text-sm transition-colors cursor-pointer",
+                "flex w-full items-center gap-2 rounded-lg px-2 py-2 text-left text-sm cursor-pointer group",
                 active
                   ? "bg-secondary text-surface"
-                  : "text-foreground hover:bg-muted-surface",
+                  : "text-foreground hover:bg-primary-hover",
               )}
             >
               <MessageSquareText
                 aria-hidden="true"
-                className="size-4 shrink-0 text-surface"
+                className={cn(
+                  "size-4 shrink-0",
+                  active
+                    ? "text-surface"
+                    : "text-foreground group-hover:text-surface",
+                )}
                 strokeWidth={1.8}
               />
-              <span className="truncate">
+              <span className="truncate group-hover:text-surface">
                 {conversation.title?.trim() || "Untitled conversation"}
               </span>
-            </button>
+            </Link>
           );
         })}
       </div>

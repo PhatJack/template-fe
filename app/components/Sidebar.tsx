@@ -2,6 +2,7 @@ import {
   Briefcase,
   CircleUserRound,
   Crown,
+  DoorOpen,
   FileText,
   Home,
   Image,
@@ -107,7 +108,7 @@ export function Sidebar({ onSignInClick }: SidebarProps) {
 
       <div className="flex w-full flex-col items-center gap-2">
         {currentUser ? (
-          <div className="flex w-full flex-col items-center gap-1.5">
+          <div className="flex w-full flex-col items-center gap-0.5">
             <span className="flex size-9 items-center justify-center rounded-full bg-primary text-background">
               <CircleUserRound
                 aria-hidden="true"
@@ -123,17 +124,24 @@ export function Sidebar({ onSignInClick }: SidebarProps) {
             <button
               type="button"
               onClick={logout}
-              className="max-w-16 truncate text-center text-tiny text-foreground transition-colors hover:text-primary"
+              className="max-w-16 truncate text-center text-tiny text-foreground transition-colors hover:text-primary cursor-pointer"
             >
-              Đăng xuất
+              <span className="flex size-9 items-center justify-center rounded-full">
+                <DoorOpen />
+              </span>
+              <span>Sign out</span>
             </button>
           </div>
         ) : (
-          <SidebarNavItem label="Sign in" icon={LogIn} onClick={onSignInClick} />
+          <SidebarNavItem
+            label="Sign in"
+            icon={LogIn}
+            onClick={onSignInClick}
+          />
         )}
         <button
           type="button"
-          className="flex w-full flex-col items-center justify-center gap-0.5 leading-3 text-primary transition-colors hover:bg-muted-surface"
+          className="flex w-full flex-col items-center justify-center gap-0.5 leading-3 transition-colors hover:bg-muted-surface"
         >
           <span className="flex size-9 items-center justify-center rounded-full bg-primary">
             <Crown
