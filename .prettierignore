@@ -1,0 +1,7 @@
+node_modules
+build
+.react-router
+.agents
+pnpm-lock.yaml
+dist
+coverage

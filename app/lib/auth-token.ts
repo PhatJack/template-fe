@@ -2,7 +2,9 @@ const ACCESS_TOKEN_KEY = "accessToken";
 export const AUTH_TOKEN_CHANGED_EVENT = "auth-token-changed";
 
 function canUseStorage() {
-  return typeof window !== "undefined" && typeof window.localStorage !== "undefined";
+  return (
+    typeof window !== "undefined" && typeof window.localStorage !== "undefined"
+  );
 }
 
 export function getAccessToken() {

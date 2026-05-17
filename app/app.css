@@ -2,83 +2,84 @@
 @plugin "@tailwindcss/typography";
 
 @theme {
-	--font-sans: "Inter", ui-sans-serif, system-ui, sans-serif,
-		"Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji";
+  --font-sans:
+    "Inter", ui-sans-serif, system-ui, sans-serif, "Apple Color Emoji",
+    "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji";
 
-	--color-primary: #1E0DFF;
-	--color-primary-hover: #1A0CC2;
-	--color-primary-active: #150A99;
-	--color-secondary: #1E5AE1;
-	--color-foreground: #1F2124;
-	--color-foreground-strong: #000000;
-	--color-background: #FFFFFF;
-	--color-surface: #FFFFFF;
-	--color-muted: #6B7280;
-	--color-muted-light: #9FA7B5;
-	--color-input: #2B293F;
-	--color-accent: #D3CEFF;
-	--color-highlight: #FFEEAA;
-	--color-interactive: #161720;
-	--color-border: #CFD6DD;
-	--color-border-light: #E1E4E8;
-	--color-border-hover: #B5BCC5;
-	--color-border-active: #9FA7B5;
-	--color-muted-surface: #F9FAFE;
-	--color-soft-background: #F2F5FD;
-	--color-success: #00A63E;
-	--color-success-surface: #ECFDF5;
-	--color-success-border: #C6F6D5;
-	--color-error: #B71C22;
-	--color-error-surface: #FEF2F2;
-	--color-error-border: #FECACA;
-	--color-visited: #7C3AED;
-	--color-btn-primary-hover: #e7edfc;
+  --color-primary: #1e0dff;
+  --color-primary-hover: #1a0cc2;
+  --color-primary-active: #150a99;
+  --color-secondary: #1e5ae1;
+  --color-foreground: #1f2124;
+  --color-foreground-strong: #000000;
+  --color-background: #ffffff;
+  --color-surface: #ffffff;
+  --color-muted: #6b7280;
+  --color-muted-light: #9fa7b5;
+  --color-input: #2b293f;
+  --color-accent: #d3ceff;
+  --color-highlight: #ffeeaa;
+  --color-interactive: #161720;
+  --color-border: #cfd6dd;
+  --color-border-light: #e1e4e8;
+  --color-border-hover: #b5bcc5;
+  --color-border-active: #9fa7b5;
+  --color-muted-surface: #f9fafe;
+  --color-soft-background: #f2f5fd;
+  --color-success: #00a63e;
+  --color-success-surface: #ecfdf5;
+  --color-success-border: #c6f6d5;
+  --color-error: #b71c22;
+  --color-error-surface: #fef2f2;
+  --color-error-border: #fecaca;
+  --color-visited: #7c3aed;
+  --color-btn-primary-hover: #e7edfc;
 
-	--text-tiny: 0.625rem;
-	--text-tiny--line-height: 1.5rem;
-	/* --text-tiny--font-weight: 500; */
+  --text-tiny: 0.625rem;
+  --text-tiny--line-height: 1.5rem;
+  /* --text-tiny--font-weight: 500; */
 }
 
 html,
 body {
-	@apply bg-soft-background;
-	/* 
+  @apply bg-soft-background;
+  /* 
 	@media (prefers-color-scheme: dark) {
 		color-scheme: dark;
 	} */
 }
 
 @layer components {
-	.navbar-text {
-		@apply text-tiny;
-	}
+  .navbar-text {
+    @apply text-tiny;
+  }
 
-	.custom-scrollbar::-webkit-scrollbar {
-		width: 6px;
-	}
+  .custom-scrollbar::-webkit-scrollbar {
+    width: 6px;
+  }
 
-	.custom-scrollbar::-webkit-scrollbar-track {
-		background: transparent;
-	}
+  .custom-scrollbar::-webkit-scrollbar-track {
+    background: transparent;
+  }
 
-	.custom-scrollbar::-webkit-scrollbar-thumb {
-		background: #cfd6dd;
-		border-radius: 9999px;
-	}
+  .custom-scrollbar::-webkit-scrollbar-thumb {
+    background: #cfd6dd;
+    border-radius: 9999px;
+  }
 
-	.custom-scrollbar::-webkit-scrollbar-thumb:hover {
-		background: #9fa7b5;
-	}
+  .custom-scrollbar::-webkit-scrollbar-thumb:hover {
+    background: #9fa7b5;
+  }
 
-	.custom-scrollbar::-webkit-scrollbar-button {
-		display: none;
-		width: 0;
-		height: 0;
-	}
+  .custom-scrollbar::-webkit-scrollbar-button {
+    display: none;
+    width: 0;
+    height: 0;
+  }
 
-	/* Firefox */
-	.custom-scrollbar {
-		scrollbar-width: thin;
-		scrollbar-color: #cfd6dd transparent;
-	}
+  /* Firefox */
+  .custom-scrollbar {
+    scrollbar-width: thin;
+    scrollbar-color: #cfd6dd transparent;
+  }
 }

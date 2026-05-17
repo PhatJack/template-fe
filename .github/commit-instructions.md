@@ -145,7 +145,8 @@ Or use `!` after the type/scope:
 ```
 feat(api)!: change authentication endpoint structure
 ```
-<!-- 
+
+<!--
 ## Tips for GitHub Copilot
 
 When writing commits with GitHub Copilot:

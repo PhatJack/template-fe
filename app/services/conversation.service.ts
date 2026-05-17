@@ -30,7 +30,10 @@ export const conversationService = {
 
   getConversation(id: string) {
     const parsedId = idParamSchema.parse(id);
-    return requestData(api.get(`/conversations/${parsedId}`), conversationSchema);
+    return requestData(
+      api.get(`/conversations/${parsedId}`),
+      conversationSchema,
+    );
   },
 
   updateConversation(id: string, input: UpdateConversationInput) {

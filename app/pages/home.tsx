@@ -3,12 +3,12 @@ import ConversationContainer from "~/components/ConversationContainer";
 
 const HomePage = () => {
   return (
-    <section className="relative flex h-screen flex-col pl-0 md:pl-17 w-full">
-      <header className="fixed left-4 top-4 z-50 md:left-32">
+    <section className="relative flex h-screen w-full flex-col pl-0 md:pl-17">
+      <header className="fixed top-4 left-4 z-50 md:left-32">
         <div className="container">
           <a
             href="/"
-            className="text-xs font-bold uppercase leading-none text-primary"
+            className="text-primary text-xs leading-none font-bold uppercase"
           >
             <img
               src="/new_logo.svg"

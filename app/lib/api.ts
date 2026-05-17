@@ -62,13 +62,19 @@ export async function requestData<TSchema extends z.ZodType>(
     const envelope = apiSuccessResponseSchema.safeParse(response.data);
 
     if (!envelope.success) {
-      throw new ApiServiceError("API response validation failed", envelope.error);
+      throw new ApiServiceError(
+        "API response validation failed",
+        envelope.error,
+      );
     }
 
     const parsedData = schema.safeParse(envelope.data.data);
 
     if (!parsedData.success) {
-      throw new ApiServiceError("API response data validation failed", parsedData.error);
+      throw new ApiServiceError(
+        "API response data validation failed",
+        parsedData.error,
+      );
     }
 
     return parsedData.data;

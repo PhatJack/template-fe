@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { MessageSquareText } from "lucide-react";
-import { Link, useLocation, useNavigate } from "react-router";
+import { Link, useLocation } from "react-router";
 import { conversationService, type Conversation } from "~/services";
 import { useAuth } from "~/state/auth-context";
 import { cn } from "~/lib/utils";
@@ -9,7 +9,6 @@ const ConversationContainer = () => {
   const {
     state: { currentUser },
   } = useAuth();
-  const navigate = useNavigate();
   const location = useLocation();
   const [conversations, setConversations] = useState<Conversation[]>([]);
   const [loading, setLoading] = useState(false);
@@ -57,16 +56,16 @@ const ConversationContainer = () => {
   }
 
   return (
-    <aside className="hidden h-full w-64 shrink-0 border-r border-border-light bg-muted-surface px-3 pb-4 md:block">
+    <aside className="border-border-light bg-muted-surface hidden h-full w-64 shrink-0 border-r px-3 pb-4 md:block">
       <div className="mb-3 px-2">
-        <h2 className="text-sm font-semibold text-foreground">Conversations</h2>
+        <h2 className="text-foreground text-sm font-semibold">Conversations</h2>
       </div>
 
       <div className="flex flex-col gap-1">
-        {loading && <p className="px-2 py-2 text-xs text-muted">Loading...</p>}
+        {loading && <p className="text-muted px-2 py-2 text-xs">Loading...</p>}
 
         {!loading && conversations.length === 0 && (
-          <p className="px-2 py-2 text-xs leading-5 text-muted">
+          <p className="text-muted px-2 py-2 text-xs leading-5">
             No conversations yet.
           </p>
         )}
@@ -81,7 +80,7 @@ const ConversationContainer = () => {
               to={href}
               title={conversation.title?.trim() || "Untitled conversation"}
               className={cn(
-                "flex w-full items-center gap-2 rounded-lg px-2 py-2 text-left text-sm cursor-pointer group",
+                "group flex w-full cursor-pointer items-center gap-2 rounded-lg px-2 py-2 text-left text-sm",
                 active
                   ? "bg-secondary text-surface"
                   : "text-foreground hover:bg-primary-hover",
@@ -97,7 +96,7 @@ const ConversationContainer = () => {
                 )}
                 strokeWidth={1.8}
               />
-              <span className="truncate group-hover:text-surface">
+              <span className="group-hover:text-surface truncate">
                 {conversation.title?.trim() || "Untitled conversation"}
               </span>
             </Link>

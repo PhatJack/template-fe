@@ -28,8 +28,6 @@ const ChatInput = ({ onSubmit, disabled }: ChatInputProps) => {
 
     const lines = textarea.scrollHeight / lineHeight;
 
-    console.log(lines);
-
     setIsShowExpandIcon(lines > 4);
   };
 
@@ -99,11 +97,11 @@ const ChatInput = ({ onSubmit, disabled }: ChatInputProps) => {
       aria-label="Template generation prompt"
       onSubmit={handleSubmit}
     >
-      <div className="flex min-h-17 flex-col rounded-2xl pt-2 relative border border-border bg-surface shadow-[0_1px_3px_rgba(31,33,36,0.08)] transition-colors focus-within:border-primary">
+      <div className="border-border bg-surface focus-within:border-primary relative flex min-h-17 flex-col rounded-2xl border pt-2 shadow-[0_1px_3px_rgba(31,33,36,0.08)] transition-colors">
         <label htmlFor="prompt" className="sr-only">
           Ask template.net
         </label>
-        <div className="w-full py-2 pl-3">
+        <div className="w-full px-3 py-2">
           <textarea
             id="prompt"
             ref={textareaRef}
@@ -111,7 +109,7 @@ const ChatInput = ({ onSubmit, disabled }: ChatInputProps) => {
             value={prompt}
             onChange={handleChange}
             placeholder="Ask template.net"
-            className="min-h-10 w-full max-h-60 overflow-y-auto resize-none transition-[height] duration-200 ease-out bg-transparent text-sm leading-4.5 text-input outline-none placeholder:text-muted-light"
+            className="custom-scrollbar text-input placeholder:text-muted-light max-h-60 min-h-10 w-full resize-none overflow-y-auto bg-transparent text-sm leading-4.5 transition-[height] duration-200 ease-out outline-none"
           />
         </div>
 
@@ -119,13 +117,13 @@ const ChatInput = ({ onSubmit, disabled }: ChatInputProps) => {
           <button
             type="button"
             aria-label={isExpanded ? "Collapse textarea" : "Expand textarea"}
-            className="absolute right-2 top-2 flex size-8 cursor-pointer items-center justify-center rounded-full text-foreground p-2 hover:bg-soft-background"
+            className="text-foreground hover:bg-soft-background absolute top-2 right-2 flex size-8 cursor-pointer items-center justify-center rounded-full p-2"
             onClick={() => setIsExpanded((prev) => !prev)}
           >
             {!isExpanded ? (
-              <ChevronsLeftRight className="-rotate-45 size-4" />
+              <ChevronsLeftRight className="size-4 -rotate-45" />
             ) : (
-              <ChevronsRightLeft className="-rotate-45 size-4" />
+              <ChevronsRightLeft className="size-4 -rotate-45" />
             )}
           </button>
         )}
@@ -134,7 +132,7 @@ const ChatInput = ({ onSubmit, disabled }: ChatInputProps) => {
           <button
             type="button"
             aria-label="Add attachment"
-            className="flex size-10 items-center justify-center rounded-full text-foreground transition-colors hover:bg-soft-background cursor-pointer"
+            className="text-foreground hover:bg-soft-background flex size-10 cursor-pointer items-center justify-center rounded-full transition-colors"
             disabled={disabled}
           >
             <Plus aria-hidden="true" className="size-5" strokeWidth={2} />
@@ -143,7 +141,7 @@ const ChatInput = ({ onSubmit, disabled }: ChatInputProps) => {
           <button
             type="submit"
             disabled={disabled || prompt.trim().length === 0}
-            className="flex h-10 items-center gap-1 rounded-full bg-primary px-3 text-xs font-semibold leading-none text-background shadow-[0_4px_12px_rgba(30,13,255,0.2)] transition hover:bg-primary-hover hover:shadow-[0_6px_16px_rgba(30,13,255,0.3)] disabled:opacity-60"
+            className="bg-primary text-background hover:bg-primary-hover flex h-10 items-center gap-1 rounded-full px-3 text-xs leading-none font-semibold shadow-[0_4px_12px_rgba(30,13,255,0.2)] transition hover:shadow-[0_6px_16px_rgba(30,13,255,0.3)] disabled:opacity-60"
           >
             <Sparkles aria-hidden="true" className="size-4" strokeWidth={2} />
             Generate Free

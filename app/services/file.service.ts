@@ -1,10 +1,6 @@
 import { z } from "zod";
 import { api, requestData, requestEmpty } from "~/lib/api";
-import {
-  createFileSchema,
-  fileSchema,
-  type CreateFileInput,
-} from "./schemas";
+import { createFileSchema, fileSchema, type CreateFileInput } from "./schemas";
 
 const fileListSchema = z.array(fileSchema);
 const idParamSchema = z.string().min(1);

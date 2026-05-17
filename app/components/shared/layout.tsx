@@ -7,7 +7,7 @@ const DefaultLayout = () => {
   const [authOpen, setAuthOpen] = useState(false);
 
   return (
-    <main className="min-h-screen bg-muted-surface font-sans text-foreground">
+    <main className="bg-muted-surface text-foreground min-h-screen font-sans">
       <Sidebar onSignInClick={() => setAuthOpen(true)} />
       <Outlet />
       <AuthModal open={authOpen} onClose={() => setAuthOpen(false)} />

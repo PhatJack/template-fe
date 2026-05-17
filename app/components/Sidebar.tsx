@@ -53,7 +53,7 @@ function SidebarNavItem({
     >
       <span
         className={cn(
-          "py-1 px-4 rounded-full",
+          "rounded-full px-4 py-1",
           active
             ? "bg-btn-primary-hover"
             : "group-hover:bg-btn-primary-hover cursor-pointer",
@@ -72,9 +72,9 @@ function SidebarNavItem({
       </span>
       <span
         className={cn(
-          "max-w-15 font-normal truncate leading-4",
+          "max-w-15 truncate leading-4 font-normal",
           active ? "text-primary" : "text-foreground",
-          "navbar-text leading-6 align-top",
+          "navbar-text align-top leading-6",
         )}
       >
         {label}
@@ -95,8 +95,8 @@ export function Sidebar({ onSignInClick }: SidebarProps) {
   const userDisplayName = currentUser?.name?.trim() || currentUser?.email;
 
   return (
-    <aside className="fixed inset-y-0 left-0 z-100 hidden w-17 flex-col items-center bg-soft-background py-4 md:flex">
-      <nav className="flex w-full flex-1 flex-col items-center overflow-y-auto overflow-x-hidden">
+    <aside className="bg-soft-background fixed inset-y-0 left-0 z-100 hidden w-17 flex-col items-center py-4 md:flex">
+      <nav className="flex w-full flex-1 flex-col items-center overflow-x-hidden overflow-y-auto">
         {primaryItems.map((item) => (
           <SidebarNavItem
             key={item.label}
@@ -109,7 +109,7 @@ export function Sidebar({ onSignInClick }: SidebarProps) {
       <div className="flex w-full flex-col items-center gap-2">
         {currentUser ? (
           <div className="flex w-full flex-col items-center gap-0.5">
-            <span className="flex size-9 items-center justify-center rounded-full bg-primary text-background">
+            <span className="bg-primary text-background flex size-9 items-center justify-center rounded-full">
               <CircleUserRound
                 aria-hidden="true"
                 className="size-5"
@@ -117,14 +117,14 @@ export function Sidebar({ onSignInClick }: SidebarProps) {
               />
             </span>
             {userDisplayName && (
-              <span className="max-w-16 truncate text-center text-tiny font-medium text-foreground">
+              <span className="text-tiny text-foreground max-w-16 truncate text-center font-medium">
                 {userDisplayName}
               </span>
             )}
             <button
               type="button"
               onClick={logout}
-              className="max-w-16 truncate text-center text-tiny text-foreground transition-colors hover:text-primary cursor-pointer"
+              className="text-tiny text-foreground hover:text-primary max-w-16 cursor-pointer truncate text-center transition-colors"
             >
               <span className="flex size-9 items-center justify-center rounded-full">
                 <DoorOpen />
@@ -141,12 +141,12 @@ export function Sidebar({ onSignInClick }: SidebarProps) {
         )}
         <button
           type="button"
-          className="flex w-full flex-col items-center justify-center gap-0.5 leading-3 transition-colors hover:bg-muted-surface"
+          className="hover:bg-muted-surface flex w-full flex-col items-center justify-center gap-0.5 leading-3 transition-colors"
         >
-          <span className="flex size-9 items-center justify-center rounded-full bg-primary">
+          <span className="bg-primary flex size-9 items-center justify-center rounded-full">
             <Crown
               aria-hidden="true"
-              className="size-4.5 text-background"
+              className="text-background size-4.5"
               strokeWidth={2}
             />
           </span>

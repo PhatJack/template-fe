@@ -1,7 +1,6 @@
-import { Link, redirect, useParams } from "react-router";
+import { Link, useParams } from "react-router";
 import { ChatContainer } from "~/components/chat/ChatContainer";
 import ConversationContainer from "~/components/ConversationContainer";
-import { useAuth } from "~/state/auth-context";
 
 export function meta() {
   return [
@@ -11,22 +10,15 @@ export function meta() {
 }
 
 export default function ConversationRoute() {
-  const {
-    state: { currentUser },
-  } = useAuth();
   const { id } = useParams();
 
-  // if (!currentUser) {
-  //   return redirect("/");
-  // }
-
   return (
-    <section className="relative flex h-screen flex-col pl-0 md:pl-17 w-full">
-      <header className="fixed left-4 top-4 z-50 md:left-32">
+    <section className="relative flex h-screen w-full flex-col pl-0 md:pl-17">
+      <header className="fixed top-4 left-4 z-50 md:left-32">
         <div className="container">
           <Link
             to="/"
-            className="text-xs font-bold uppercase leading-none text-primary"
+            className="text-primary text-xs leading-none font-bold uppercase"
           >
             <img
               src="/new_logo.svg"

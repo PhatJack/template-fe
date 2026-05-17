@@ -45,7 +45,9 @@ export const messageService = {
     const parsedConversationId = idParamSchema.parse(conversationId);
 
     return requestData(
-      api.get("/messages", { params: { conversationId: parsedConversationId } }),
+      api.get("/messages", {
+        params: { conversationId: parsedConversationId },
+      }),
       messageListSchema,
     );
   },
@@ -57,7 +59,10 @@ export const messageService = {
 
   generateMessage(input: GenerateMessageInput) {
     const payload = generateMessageSchema.parse(input);
-    return requestData(api.post("/messages/reply", payload), generatedMessageSchema);
+    return requestData(
+      api.post("/messages/reply", payload),
+      generatedMessageSchema,
+    );
   },
 
   streamMessage(input: GenerateMessageInput, callbacks: StreamCallbacks) {

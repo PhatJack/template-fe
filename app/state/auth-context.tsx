@@ -88,8 +88,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       clearAccessToken();
       dispatch({
         type: "AUTH_ERROR",
-        error:
-          error instanceof Error ? error.message : "Authentication failed",
+        error: error instanceof Error ? error.message : "Authentication failed",
       });
     }
   };

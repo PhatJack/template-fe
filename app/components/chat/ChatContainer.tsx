@@ -190,12 +190,12 @@ export function ChatContainer({
 
   return (
     <section
-      className="mx-auto flex h-full min-h-0 w-full flex-col max-w-4xl px-4"
+      className="mx-auto flex h-full min-h-0 w-full max-w-4xl flex-col px-4"
       aria-label="Template.net AI chat"
     >
       <div
         ref={containerRef}
-        className="flex flex-1 min-h-0 flex-col gap-4 py-6 custom-scrollbar w-full overflow-y-auto scroll-smooth"
+        className="custom-scrollbar flex min-h-0 w-full flex-1 flex-col gap-4 overflow-y-auto scroll-smooth py-6"
       >
         {messages.map((message, index) => (
           <ChatBubble
@@ -210,7 +210,7 @@ export function ChatContainer({
         ))}
       </div>
 
-      <div className="sticky bottom-0 left-0 right-0 z-40 pb-4 pt-10 bg-muted-surface">
+      <div className="bg-muted-surface sticky right-0 bottom-0 left-0 z-40 pt-10 pb-4">
         <ChatInput onSubmit={handleSend} disabled={loading} />
       </div>
     </section>

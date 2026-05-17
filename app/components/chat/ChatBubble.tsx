@@ -31,12 +31,12 @@ export function ChatBubble({
       {(author || timestamp) && (
         <div
           className={cn(
-            "flex max-w-[85%] items-center gap-2 text-sm leading-4.5 text-muted-surface",
+            "text-muted-surface flex max-w-[85%] items-center gap-2 text-sm leading-4.5",
             isUser ? "justify-end" : "justify-start",
           )}
         >
           {author && !isUser && (
-            <span className="font-medium text-foreground">{author}</span>
+            <span className="text-foreground font-medium">{author}</span>
           )}
         </div>
       )}
@@ -45,20 +45,20 @@ export function ChatBubble({
         className={cn(
           "w-full rounded-2xl py-3 text-sm leading-5 shadow-none",
           isUser
-            ? "px-4 rounded-br-sm bg-primary text-background w-fit max-w-[80%]"
-            : "pr-4 text-foreground",
+            ? "bg-primary text-background w-fit max-w-[80%] rounded-br-sm px-4"
+            : "text-foreground pr-4",
         )}
       >
         {loading ? (
-          <span className="flex items-center gap-2 text-foreground">
+          <span className="text-foreground flex items-center gap-2">
             <Loader2
               aria-hidden="true"
-              className="size-4 animate-spin text-primary"
+              className="text-primary size-4 animate-spin"
             />
             AI is thinking
           </span>
         ) : (
-          <div className="prose-sm w-full prose-p:my-0">
+          <div className="prose-sm prose-p:my-0 w-full">
             <ReactMarkdown remarkPlugins={[remarkGfm]}>
               {children as string}
             </ReactMarkdown>

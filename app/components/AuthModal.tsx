@@ -111,14 +111,14 @@ export function AuthModal({
 
       const authResponse = isSignUp
         ? await authService.register({
-          name: trimmedName,
-          email: trimmedEmail,
-          password: form.password,
-        })
+            name: trimmedName,
+            email: trimmedEmail,
+            password: form.password,
+          })
         : await authService.login({
-          email: trimmedEmail,
-          password: form.password,
-        });
+            email: trimmedEmail,
+            password: form.password,
+          });
 
       setAccessToken(authResponse.accessToken);
       await refreshCurrentUser();
@@ -137,21 +137,21 @@ export function AuthModal({
 
   return (
     <div
-      className="fixed inset-0 z-999 flex items-center justify-center bg-foreground/55 px-4 py-6 backdrop-blur-[2px]"
+      className="bg-foreground/55 fixed inset-0 z-999 flex items-center justify-center px-4 py-6 backdrop-blur-[2px]"
       onMouseDown={onClose}
     >
       <div
         role="dialog"
         aria-modal="true"
         aria-labelledby="auth-modal-title"
-        className="relative w-full max-w-md rounded-3xl border border-border-light bg-background px-5 py-6 text-foreground shadow-[0_24px_80px_rgba(0,0,0,0.18)] sm:px-7"
+        className="border-border-light bg-background text-foreground relative w-full max-w-md rounded-3xl border px-5 py-6 shadow-[0_24px_80px_rgba(0,0,0,0.18)] sm:px-7"
         onMouseDown={(event) => event.stopPropagation()}
       >
         <button
           type="button"
           aria-label="Close authentication modal"
           onClick={onClose}
-          className="absolute right-4 top-4 inline-flex size-9 items-center justify-center rounded-full text-muted transition-colors hover:bg-muted-surface hover:text-foreground"
+          className="text-muted hover:bg-muted-surface hover:text-foreground absolute top-4 right-4 inline-flex size-9 items-center justify-center rounded-full transition-colors"
         >
           <X className="size-5" />
         </button>
@@ -164,7 +164,7 @@ export function AuthModal({
           <div className="space-y-1">
             <h2
               id="auth-modal-title"
-              className="text-2xl font-semibold tracking-tight text-foreground"
+              className="text-foreground text-2xl font-semibold tracking-tight"
             >
               {title}
             </h2>
@@ -174,8 +174,8 @@ export function AuthModal({
         <form className="mt-6 space-y-4 text-left" onSubmit={handleSubmit}>
           {isSignUp && (
             <label className="block space-y-2">
-              <span className="flex items-center gap-2 text-sm font-medium text-foreground">
-                <UserRound className="size-4 text-primary" />
+              <span className="text-foreground flex items-center gap-2 text-sm font-medium">
+                <UserRound className="text-primary size-4" />
                 Name <span className="text-error">*</span>
               </span>
               <input
@@ -185,14 +185,14 @@ export function AuthModal({
                   handleFieldChange("name", event.target.value)
                 }
                 placeholder="Your name"
-                className="h-12 w-full rounded-xl border border-border bg-background px-4 text-sm text-foreground outline-none transition-colors placeholder:text-muted focus:border-primary focus:ring-2 focus:ring-primary/10"
+                className="border-border bg-background text-foreground placeholder:text-muted focus:border-primary focus:ring-primary/10 h-12 w-full rounded-xl border px-4 text-sm transition-colors outline-none focus:ring-2"
               />
             </label>
           )}
 
           <label className="block space-y-2">
-            <span className="flex items-center gap-2 text-sm font-medium text-foreground">
-              <Mail className="size-4 text-primary" />
+            <span className="text-foreground flex items-center gap-2 text-sm font-medium">
+              <Mail className="text-primary size-4" />
               Email <span className="text-error">*</span>
             </span>
             <input
@@ -202,13 +202,13 @@ export function AuthModal({
                 handleFieldChange("email", event.target.value)
               }
               placeholder="Enter your email"
-              className="h-12 w-full rounded-xl border border-border bg-background px-4 text-sm text-foreground outline-none transition-colors placeholder:text-muted focus:border-primary focus:ring-2 focus:ring-primary/10"
+              className="border-border bg-background text-foreground placeholder:text-muted focus:border-primary focus:ring-primary/10 h-12 w-full rounded-xl border px-4 text-sm transition-colors outline-none focus:ring-2"
             />
           </label>
 
           <label className="block space-y-2">
-            <span className="flex items-center gap-2 text-sm font-medium text-foreground">
-              <Lock className="size-4 text-primary" />
+            <span className="text-foreground flex items-center gap-2 text-sm font-medium">
+              <Lock className="text-primary size-4" />
               Password <span className="text-error">*</span>
             </span>
             <div className="relative">
@@ -219,13 +219,13 @@ export function AuthModal({
                   handleFieldChange("password", event.target.value)
                 }
                 placeholder="Your password"
-                className="h-12 w-full rounded-xl border border-border bg-background px-4 pr-12 text-sm text-foreground outline-none transition-colors placeholder:text-muted focus:border-primary focus:ring-2 focus:ring-primary/10"
+                className="border-border bg-background text-foreground placeholder:text-muted focus:border-primary focus:ring-primary/10 h-12 w-full rounded-xl border px-4 pr-12 text-sm transition-colors outline-none focus:ring-2"
               />
               <button
                 type="button"
                 aria-label={showPassword ? "Hide password" : "Show password"}
                 onClick={() => setShowPassword((value) => !value)}
-                className="absolute inset-y-0 right-2 inline-flex items-center justify-center rounded-full px-2 text-muted transition-colors hover:text-foreground"
+                className="text-muted hover:text-foreground absolute inset-y-0 right-2 inline-flex items-center justify-center rounded-full px-2 transition-colors"
               >
                 {showPassword ? (
                   <EyeOff className="size-4" />
@@ -238,8 +238,8 @@ export function AuthModal({
 
           {isSignUp && (
             <label className="block space-y-2">
-              <span className="flex items-center gap-2 text-sm font-medium text-foreground">
-                <Lock className="size-4 text-primary" />
+              <span className="text-foreground flex items-center gap-2 text-sm font-medium">
+                <Lock className="text-primary size-4" />
                 Confirm password <span className="text-error">*</span>
               </span>
               <input
@@ -249,17 +249,17 @@ export function AuthModal({
                   handleFieldChange("confirmPassword", event.target.value)
                 }
                 placeholder="Confirm your password"
-                className="h-12 w-full rounded-xl border border-border bg-background px-4 text-sm text-foreground outline-none transition-colors placeholder:text-muted focus:border-primary focus:ring-2 focus:ring-primary/10"
+                className="border-border bg-background text-foreground placeholder:text-muted focus:border-primary focus:ring-primary/10 h-12 w-full rounded-xl border px-4 text-sm transition-colors outline-none focus:ring-2"
               />
             </label>
           )}
 
           {!isSignUp && (
             <div className="flex items-center justify-between gap-3 text-sm">
-              <label className="flex items-center gap-2 text-muted">
+              <label className="text-muted flex items-center gap-2">
                 <input
                   type="checkbox"
-                  className="size-4 rounded border-border text-primary focus:ring-primary"
+                  className="border-border text-primary focus:ring-primary size-4 rounded"
                 />
                 Remember for 30 days
               </label>
@@ -267,7 +267,7 @@ export function AuthModal({
           )}
 
           {error && (
-            <p className="rounded-xl border border-error-border bg-error-surface px-4 py-3 text-sm text-error">
+            <p className="border-error-border bg-error-surface text-error rounded-xl border px-4 py-3 text-sm">
               {error}
             </p>
           )}
@@ -275,7 +275,7 @@ export function AuthModal({
           <button
             type="submit"
             disabled={loading}
-            className="flex h-12 w-full items-center justify-center rounded-xl bg-primary px-6 text-sm font-semibold text-background transition-all hover:bg-primary-hover active:bg-primary-active disabled:cursor-not-allowed disabled:bg-accent disabled:text-muted"
+            className="bg-primary text-background hover:bg-primary-hover active:bg-primary-active disabled:bg-accent disabled:text-muted flex h-12 w-full items-center justify-center rounded-xl px-6 text-sm font-semibold transition-all disabled:cursor-not-allowed"
           >
             {loading ? (
               <Loader2 className="size-4 animate-spin" />
@@ -286,16 +286,16 @@ export function AuthModal({
 
           {isSignUp ? (
             <>
-              <p className="text-center text-xs leading-5 text-muted">
+              <p className="text-muted text-center text-xs leading-5">
                 By signing up, you agree to Template.net&apos;s Terms of Service
                 & Privacy Policy.
               </p>
-              <p className="text-center text-xs leading-5 text-muted">
+              <p className="text-muted text-center text-xs leading-5">
                 Already have an account?{" "}
                 <button
                   type="button"
                   onClick={() => setMode("signin")}
-                  className="font-medium text-primary transition-colors hover:text-primary-hover cursor-pointer hover:underline hover:underline-offset-2"
+                  className="text-primary hover:text-primary-hover cursor-pointer font-medium transition-colors hover:underline hover:underline-offset-2"
                 >
                   Sign In
                 </button>
@@ -303,16 +303,16 @@ export function AuthModal({
             </>
           ) : (
             <>
-              <p className="text-center text-xs leading-5 text-muted">
+              <p className="text-muted text-center text-xs leading-5">
                 By continuing, you agree to Template.net&apos;s Terms of use and
                 Privacy Policy.
               </p>
-              <p className="text-center text-xs leading-5 text-muted">
+              <p className="text-muted text-center text-xs leading-5">
                 Don&apos;t have an account?{" "}
                 <button
                   type="button"
                   onClick={() => setMode("signup")}
-                  className="font-medium text-primary transition-colors hover:text-primary-hover cursor-pointer hover:underline hover:underline-offset-2"
+                  className="text-primary hover:text-primary-hover cursor-pointer font-medium transition-colors hover:underline hover:underline-offset-2"
                 >
                   Sign Up
                 </button>
