@@ -167,20 +167,28 @@ export function ChatBubble({
         )}
       >
         {loading ? (
-          <span className="text-foreground flex items-center gap-2">
+          <span className="text-foreground relative flex items-center gap-2 overflow-hidden">
             <Loader2
               aria-hidden="true"
               className="text-primary size-4 animate-spin"
             />
             <RotatingText
-              texts={["AI is thinking", "AI is generating"]}
+              texts={[
+                "Analyzing your request",
+                "Thinking",
+                "Understanding your prompt",
+                "Generating response",
+                "Almost done",
+                "Preparing the final response",
+              ]}
+              initial={{ y: "100%" }}
               animate={{ y: 0 }}
-              exit={{ y: "-120%" }}
+              exit={{ y: "-100%" }}
               staggerDuration={0.025}
-              splitLevelClassName="overflow-hidden pb-0.5 sm:pb-1 md:pb-1"
+              splitLevelClassName="overflow-hidden"
               transition={{ type: "spring", damping: 30, stiffness: 400 }}
-              rotationInterval={1200}
-              splitBy="characters"
+              rotationInterval={2000}
+              splitBy="words"
               auto
               loop
             />

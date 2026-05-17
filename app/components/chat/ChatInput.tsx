@@ -235,7 +235,7 @@ const ChatInput = ({ onSubmit, disabled }: ChatInputProps) => {
           <button
             type="submit"
             disabled={disabled || prompt.trim().length === 0}
-            className="bg-primary text-background hover:bg-primary-hover flex h-10 items-center gap-1 rounded-full px-3 text-xs leading-none font-semibold shadow-[0_4px_12px_rgba(30,13,255,0.2)] transition hover:shadow-[0_6px_16px_rgba(30,13,255,0.3)] disabled:opacity-60"
+            className="bg-primary text-background hover:bg-primary-hover flex h-10 cursor-pointer items-center gap-1 rounded-full px-3 text-xs leading-none font-semibold shadow-[0_4px_12px_rgba(30,13,255,0.2)] transition hover:shadow-[0_6px_16px_rgba(30,13,255,0.3)] disabled:opacity-60"
           >
             <Sparkles aria-hidden="true" className="size-4" strokeWidth={2} />
             Generate Free

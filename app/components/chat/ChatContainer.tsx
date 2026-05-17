@@ -25,6 +25,26 @@ type ChatContainerProps = {
   conversationId?: string;
 };
 
+function createPreviewFileRecords(
+  files: File[] | undefined,
+  conversationId: string | undefined,
+  messageId: string,
+  createdAt: string,
+): FileRecord[] {
+  return (files ?? []).map((file) => ({
+    id: generateFakeObjectId(),
+    conversationId: conversationId ?? messageId,
+    messageId,
+    originalName: file.name,
+    fileName: file.name,
+    mimeType: file.type || "application/octet-stream",
+    size: file.size,
+    url: `preview:${file.name}`,
+    createdAt,
+    updatedAt: createdAt,
+  }));
+}
+
 export function ChatContainer({
   conversationId: initialConversationId,
 }: ChatContainerProps) {
@@ -92,12 +112,19 @@ export function ChatContainer({
     setLoading(true);
 
     const userPlaceholderId = generateFakeObjectId();
+    const userCreatedAt = new Date().toISOString();
     const userUi: UiMessage = {
       id: userPlaceholderId,
       role: "user",
       author: "You",
-      timestamp: new Date().toISOString(),
+      timestamp: userCreatedAt,
       content: prompt,
+      files: createPreviewFileRecords(
+        files,
+        conversationId,
+        userPlaceholderId,
+        userCreatedAt,
+      ),
     };
 
     setMessages((prev) => [...prev, userUi]);
