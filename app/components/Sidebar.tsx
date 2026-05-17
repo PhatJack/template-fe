@@ -1,4 +1,3 @@
-import { useEffect, useState } from "react";
 import {
   Briefcase,
   CircleUserRound,
@@ -15,13 +14,8 @@ import {
   Video,
 } from "lucide-react";
 import type { LucideIcon } from "lucide-react";
-import {
-  AUTH_TOKEN_CHANGED_EVENT,
-  clearAccessToken,
-  getAccessToken,
-} from "../lib/auth-token";
 import { cn } from "../lib/utils";
-import { authService, type AuthUser } from "../services/auth.service";
+import { useAuth } from "~/state/auth-context";
 
 type SidebarItem = {
   label: string;
@@ -93,62 +87,10 @@ type SidebarProps = {
 };
 
 export function Sidebar({ onSignInClick }: SidebarProps) {
-  const [isSignedIn, setIsSignedIn] = useState(() => Boolean(getAccessToken()));
-  const [currentUser, setCurrentUser] = useState<AuthUser | null>(null);
-
-  useEffect(() => {
-    const syncAuthState = () => {
-      const hasToken = Boolean(getAccessToken());
-
-      setIsSignedIn(hasToken);
-
-      if (!hasToken) {
-        setCurrentUser(null);
-      }
-    };
-
-    window.addEventListener(AUTH_TOKEN_CHANGED_EVENT, syncAuthState);
-    window.addEventListener("storage", syncAuthState);
-
-    return () => {
-      window.removeEventListener(AUTH_TOKEN_CHANGED_EVENT, syncAuthState);
-      window.removeEventListener("storage", syncAuthState);
-    };
-  }, []);
-
-  useEffect(() => {
-    if (!isSignedIn) {
-      setCurrentUser(null);
-      return;
-    }
-
-    let ignore = false;
-
-    authService
-      .me()
-      .then((user) => {
-        if (!ignore) {
-          setCurrentUser(user);
-        }
-      })
-      .catch(() => {
-        if (!ignore) {
-          clearAccessToken();
-          setIsSignedIn(false);
-          setCurrentUser(null);
-        }
-      });
-
-    return () => {
-      ignore = true;
-    };
-  }, [isSignedIn]);
-
-  const handleLogout = () => {
-    clearAccessToken();
-    setCurrentUser(null);
-  };
-
+  const {
+    state: { currentUser },
+    logout,
+  } = useAuth();
   const userDisplayName = currentUser?.name?.trim() || currentUser?.email;
 
   return (
@@ -164,7 +106,7 @@ export function Sidebar({ onSignInClick }: SidebarProps) {
       </nav>
 
       <div className="flex w-full flex-col items-center gap-2">
-        {isSignedIn ? (
+        {currentUser ? (
           <div className="flex w-full flex-col items-center gap-1.5">
             <span className="flex size-9 items-center justify-center rounded-full bg-primary text-background">
               <CircleUserRound
@@ -180,7 +122,7 @@ export function Sidebar({ onSignInClick }: SidebarProps) {
             )}
             <button
               type="button"
-              onClick={handleLogout}
+              onClick={logout}
               className="max-w-16 truncate text-center text-tiny text-foreground transition-colors hover:text-primary"
             >
               Đăng xuất

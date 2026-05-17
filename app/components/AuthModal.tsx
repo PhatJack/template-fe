@@ -2,6 +2,7 @@ import { useEffect, useState, type SubmitEvent } from "react";
 import { Eye, EyeOff, Loader2, Lock, Mail, UserRound, X } from "lucide-react";
 import { setAccessToken } from "~/lib/auth-token";
 import { authService } from "~/services";
+import { useAuth } from "~/state/auth-context";
 
 type AuthMode = "signin" | "signup";
 
@@ -35,6 +36,7 @@ export function AuthModal({
   const [loading, setLoading] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const { refreshCurrentUser } = useAuth();
 
   useEffect(() => {
     if (!open) {
@@ -119,6 +121,7 @@ export function AuthModal({
         });
 
       setAccessToken(authResponse.accessToken);
+      await refreshCurrentUser();
 
       onClose();
     } catch (authError) {

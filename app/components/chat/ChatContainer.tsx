@@ -3,6 +3,7 @@ import ChatInput from "./ChatInput";
 import { ChatBubble } from "./ChatBubble";
 import { messageService, conversationService, type Message } from "~/services";
 import { generateFakeObjectId } from "~/lib/utils";
+import { useAuth } from "~/state/auth-context";
 
 type UiMessage = {
   id?: string;
@@ -13,10 +14,17 @@ type UiMessage = {
   status?: "loading" | "streaming";
 };
 
-export function ChatContainer() {
+type ChatContainerProps = {
+  conversationId?: string;
+};
+
+export function ChatContainer({ conversationId: initialConversationId }: ChatContainerProps) {
+  const {
+    state: { currentUser },
+  } = useAuth();
   const [messages, setMessages] = useState<UiMessage[]>([]);
   const [conversationId, setConversationId] = useState<string | undefined>(
-    undefined,
+    initialConversationId,
   );
   const [loading, setLoading] = useState(false);
   const containerRef = useRef<HTMLDivElement | null>(null);
@@ -28,6 +36,11 @@ export function ChatContainer() {
       containerRef.current.scrollTop = containerRef.current.scrollHeight;
     }
   }, [messages]);
+
+  useEffect(() => {
+    setConversationId(initialConversationId);
+    setMessages([]);
+  }, [initialConversationId]);
 
   useEffect(() => {
     if (loading) return;
@@ -95,10 +108,8 @@ export function ChatContainer() {
       let convId = conversationId;
 
       if (!convId) {
-        // create fake user id when there's no auth
-        const fakeUserId = generateFakeObjectId();
         const conv = await conversationService.createConversation({
-          userId: fakeUserId,
+          userId: currentUser?.id ?? generateFakeObjectId(),
           prompt,
         });
         convId = conv.id;
