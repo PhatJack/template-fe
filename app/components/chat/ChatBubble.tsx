@@ -58,9 +58,11 @@ export function ChatBubble({
             AI is thinking
           </span>
         ) : (
-          <ReactMarkdown remarkPlugins={[remarkGfm]}>
-            {children as string}
-          </ReactMarkdown>
+          <div className="prose-sm w-full prose-p:my-0">
+            <ReactMarkdown remarkPlugins={[remarkGfm]}>
+              {children as string}
+            </ReactMarkdown>
+          </div>
         )}
       </div>
     </div>
