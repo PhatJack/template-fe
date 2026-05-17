@@ -1,5 +1,6 @@
 import axios from "axios";
 import { z } from "zod";
+import { getAccessToken } from "./auth-token";
 import { apiErrorResponseSchema } from "~/services";
 
 const DEFAULT_API_BASE_URL = "http://localhost:3000/api/v1";
@@ -16,6 +17,18 @@ export const api = axios.create({
   headers: {
     "Content-Type": "application/json",
   },
+});
+
+api.interceptors.request.use((config) => {
+  const accessToken = getAccessToken();
+
+  if (accessToken) {
+    config.headers.Authorization = `Bearer ${accessToken}`;
+  } else {
+    delete config.headers.Authorization;
+  }
+
+  return config;
 });
 
 export class ApiServiceError extends Error {

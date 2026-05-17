@@ -25,6 +25,46 @@ export const userSchema = z.object({
 export const createUserSchema = z.object({
   email: z.email(),
   name: z.string().min(1),
+  password: z.string().min(1),
+});
+
+export const authLoginSchema = z.object({
+  email: z.email(),
+  password: z.string().min(1),
+});
+
+const flatAuthResponseSchema = userSchema.extend({
+  accessToken: z.string().min(1),
+});
+
+const nestedAuthResponseSchema = z.object({
+  user: userSchema,
+  accessToken: z.string().min(1),
+});
+
+export const authResponseSchema = z
+  .union([nestedAuthResponseSchema, flatAuthResponseSchema])
+  .transform((data) => {
+    if ("user" in data) {
+      return data;
+    }
+
+    const { accessToken, ...user } = data;
+    return { user, accessToken };
+  });
+
+export const authRegisterSchema = z.object({
+  name: z.string().min(1),
+  email: z.email(),
+  password: z.string().min(1),
+});
+
+export const authSignUpFormSchema = authRegisterSchema.extend({
+  confirmPassword: z.string().min(1),
+});
+
+export const authSignInFormSchema = authLoginSchema.extend({
+  rememberMe: z.boolean().optional(),
 });
 
 export const conversationSchema = z.object({
@@ -101,6 +141,11 @@ export const createFileSchema = z.object({
 
 export type User = z.infer<typeof userSchema>;
 export type CreateUserInput = z.infer<typeof createUserSchema>;
+export type AuthLoginInput = z.infer<typeof authLoginSchema>;
+export type AuthResponse = z.infer<typeof authResponseSchema>;
+export type AuthRegisterInput = z.infer<typeof authRegisterSchema>;
+export type AuthSignUpFormInput = z.infer<typeof authSignUpFormSchema>;
+export type AuthSignInFormInput = z.infer<typeof authSignInFormSchema>;
 export type Conversation = z.infer<typeof conversationSchema>;
 export type CreateConversationInput = z.infer<typeof createConversationSchema>;
 export type UpdateConversationInput = z.infer<typeof updateConversationSchema>;

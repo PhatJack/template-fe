@@ -1,11 +1,14 @@
-import React from "react";
+import { useState } from "react";
+import { AuthModal } from "~/components/AuthModal";
 import { ChatContainer } from "~/components/chat/ChatContainer";
 import { Sidebar } from "~/components/Sidebar";
 
 const HomePage = () => {
+  const [authOpen, setAuthOpen] = useState(false);
+
   return (
     <main className="min-h-screen overflow-hidden bg-muted-surface font-sans text-foreground">
-      <Sidebar />
+      <Sidebar onSignInClick={() => setAuthOpen(true)} />
 
       <section className="relative flex h-screen flex-col pl-0 md:pl-17 w-full">
         <header className="fixed left-4 top-4 z-50 md:left-32">
@@ -26,6 +29,8 @@ const HomePage = () => {
           <ChatContainer />
         </div>
       </section>
+
+      <AuthModal open={authOpen} onClose={() => setAuthOpen(false)} />
     </main>
   );
 };
