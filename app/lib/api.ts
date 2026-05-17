@@ -3,6 +3,8 @@ import { z } from "zod";
 import { apiErrorResponseSchema } from "~/services";
 
 const DEFAULT_API_BASE_URL = "http://localhost:3000/api/v1";
+export const API_BASE_URL =
+  import.meta.env.VITE_API_BASE_URL ?? DEFAULT_API_BASE_URL;
 const apiSuccessResponseSchema = z.object({
   success: z.literal(true),
   data: z.unknown(),
@@ -10,7 +12,7 @@ const apiSuccessResponseSchema = z.object({
 });
 
 export const api = axios.create({
-  baseURL: import.meta.env.VITE_API_BASE_URL ?? DEFAULT_API_BASE_URL,
+  baseURL: API_BASE_URL,
   headers: {
     "Content-Type": "application/json",
   },

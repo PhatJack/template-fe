@@ -66,7 +66,7 @@ function SidebarNavItem({ label, icon: Icon, active = false }: SidebarItem) {
         className={cn(
           "max-w-15 font-normal truncate leading-4",
           active ? "text-primary" : "text-foreground",
-          "navbar-text",
+          "navbar-text leading-6 align-top",
         )}
       >
         {label}
@@ -77,8 +77,8 @@ function SidebarNavItem({ label, icon: Icon, active = false }: SidebarItem) {
 
 export function Sidebar() {
   return (
-    <aside className="fixed inset-y-0 left-0 z-10 hidden w-17 flex-col items-center bg-soft-background py-4 md:flex">
-      <nav className="flex w-full flex-1 flex-col items-center gap-2 overflow-y-auto overflow-x-hidden">
+    <aside className="fixed inset-y-0 left-0 z-100 hidden w-17 flex-col items-center bg-soft-background py-4 md:flex">
+      <nav className="flex w-full flex-1 flex-col items-center overflow-y-auto overflow-x-hidden">
         {primaryItems.map((item) => (
           <SidebarNavItem
             key={item.label}

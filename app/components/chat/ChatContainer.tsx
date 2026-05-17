@@ -4,21 +4,23 @@ import { ChatBubble } from "./ChatBubble";
 import { messageService, conversationService, type Message } from "~/services";
 import { generateFakeObjectId } from "~/lib/utils";
 
-const initialMessages = [
-  {
-    role: "assistant",
-    author: "Template.net AI",
-    timestamp: "Now",
-    content:
-      "Hi! Tell me what you want to create and I can turn it into a polished template draft.",
-  },
-];
+type UiMessage = {
+  id?: string;
+  role: "assistant" | "user";
+  author: string;
+  timestamp?: string;
+  content: string;
+  status?: "loading" | "streaming";
+};
 
 export function ChatContainer() {
-  const [messages, setMessages] = useState<any[]>(initialMessages);
-  const [conversationId, setConversationId] = useState<string | undefined>(undefined);
+  const [messages, setMessages] = useState<UiMessage[]>([]);
+  const [conversationId, setConversationId] = useState<string | undefined>(
+    undefined,
+  );
   const [loading, setLoading] = useState(false);
   const containerRef = useRef<HTMLDivElement | null>(null);
+  const streamRef = useRef<EventSource | null>(null);
 
   useEffect(() => {
     // scroll to bottom when messages change
@@ -28,17 +30,23 @@ export function ChatContainer() {
   }, [messages]);
 
   useEffect(() => {
-    // if we have a conversationId, load its messages
+    if (loading) return;
+
     async function loadMessages(id: string) {
       try {
         const msgs = await messageService.listMessages(id);
-        const uiMsgs = msgs.map((m: Message) => ({
-          id: m.id,
-          role: m.role === "ASSISTANT" ? "assistant" : m.role === "USER" ? "user" : String(m.role).toLowerCase(),
-          author: m.role === "ASSISTANT" ? "Template.net AI" : "You",
-          timestamp: m.createdAt || undefined,
-          content: m.content,
-        }));
+        const uiMsgs: UiMessage[] = [...msgs]
+          .sort(
+            (a, b) =>
+              new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime(),
+          )
+          .map((m: Message) => ({
+            id: m.id,
+            role: m.role === "ASSISTANT" ? "assistant" : "user",
+            author: m.role === "ASSISTANT" ? "Template.net AI" : "You",
+            timestamp: m.createdAt || undefined,
+            content: m.content,
+          }));
         setMessages(uiMsgs);
       } catch (err) {
         console.error("Failed to load messages", err);
@@ -50,9 +58,38 @@ export function ChatContainer() {
     }
   }, [conversationId]);
 
+  useEffect(() => {
+    return () => {
+      streamRef.current?.close();
+    };
+  }, []);
+
   const handleSend = async (prompt: string) => {
     if (!prompt || loading) return;
     setLoading(true);
+
+    const userPlaceholderId = generateFakeObjectId();
+    const userUi: UiMessage = {
+      id: userPlaceholderId,
+      role: "user",
+      author: "You",
+      timestamp: new Date().toISOString(),
+      content: prompt,
+    };
+
+    setMessages((prev) => [...prev, userUi]);
+
+    const assistantPlaceholderId = generateFakeObjectId();
+    const assistantUi: UiMessage = {
+      id: assistantPlaceholderId,
+      role: "assistant",
+      author: "Template.net AI",
+      timestamp: new Date().toISOString(),
+      content: "",
+      status: "loading",
+    };
+
+    setMessages((prev) => [...prev, assistantUi]);
 
     try {
       let convId = conversationId;
@@ -60,63 +97,107 @@ export function ChatContainer() {
       if (!convId) {
         // create fake user id when there's no auth
         const fakeUserId = generateFakeObjectId();
-        const conv = await conversationService.createConversation({ userId: fakeUserId, prompt });
-        convId = conv._id;
+        const conv = await conversationService.createConversation({
+          userId: fakeUserId,
+          prompt,
+        });
+        convId = conv.id;
         setConversationId(convId);
       }
 
       // create the user message
-      const created = await messageService.createMessage({ conversationId: convId!, role: "USER", content: prompt });
-
-      const userUi = {
-        id: created.id,
-        role: "user",
-        author: "You",
-        timestamp: created.createdAt,
-        content: created.content,
-      };
-
-      setMessages((prev) => [...prev, userUi]);
-
-      // request AI reply
-      const generated = await messageService.generateMessage({ messageId: created.id });
-
-      const assistant = generated.assistantMessage;
-      const assistantUi = {
-        id: assistant.id,
-        role: "assistant",
-        author: "Template.net AI",
-        timestamp: assistant.createdAt,
-        content: assistant.content,
-      };
-
-      setMessages((prev) => [...prev, assistantUi]);
+      const created = await messageService.createMessage({
+        conversationId: convId!,
+        role: "USER",
+        content: prompt,
+      });
+      setMessages((prev) =>
+        prev.map((message) =>
+          message.id === userPlaceholderId
+            ? {
+                ...message,
+                id: created.id,
+                timestamp: created.createdAt,
+              }
+            : message,
+        ),
+      );
+      streamRef.current?.close();
+      streamRef.current = messageService.streamMessage(
+        { messageId: created.id },
+        {
+          onChunk: (text) => {
+            setMessages((prev) =>
+              prev.map((message) =>
+                message.id === assistantPlaceholderId
+                  ? {
+                      ...message,
+                      content: `${message.content}${text}`,
+                      status: "streaming",
+                    }
+                  : message,
+              ),
+            );
+          },
+          onDone: ({ assistantMessage }) => {
+            setMessages((prev) =>
+              prev.map((message) =>
+                message.id === assistantPlaceholderId
+                  ? {
+                      id: assistantMessage.id,
+                      role: "assistant",
+                      author: "Template.net AI",
+                      timestamp: assistantMessage.createdAt,
+                      content: assistantMessage.content,
+                    }
+                  : message,
+              ),
+            );
+            streamRef.current = null;
+            setLoading(false);
+          },
+          onError: (error) => {
+            console.error("Message stream failed", error);
+            setMessages((prev) =>
+              prev.filter((message) => message.id !== assistantPlaceholderId),
+            );
+            streamRef.current = null;
+            setLoading(false);
+          },
+        },
+      );
     } catch (err) {
       console.error("Send failed", err);
-    } finally {
+      setMessages((prev) =>
+        prev.filter((message) => message.id !== userPlaceholderId),
+      );
       setLoading(false);
     }
   };
 
   return (
     <section
-      className="mx-auto flex w-full flex-col"
+      className="mx-auto flex h-full min-h-0 w-full flex-col max-w-4xl px-4"
       aria-label="Template.net AI chat"
     >
-      <div ref={containerRef} className="flex flex-1 flex-col gap-4 overflow-y-auto px-4 py-6 md:px-6">
+      <div
+        ref={containerRef}
+        className="flex flex-1 min-h-0 flex-col gap-4 py-6 pb-40 w-full"
+      >
         {messages.map((message, index) => (
           <ChatBubble
             key={`${message.id ?? message.role}-${index}`}
             role={message.role}
             author={message.author}
             timestamp={message.timestamp}
+            loading={message.status === "loading"}
           >
             {message.content}
           </ChatBubble>
         ))}
       </div>
 
-      <div className="px-3 py-3 md:px-6 md:py-4">
+      <div className="sticky bottom-0 left-0 right-0 z-40 pb-4 pt-10 bg-muted-surface">
         <ChatInput onSubmit={handleSend} disabled={loading} />
       </div>
     </section>

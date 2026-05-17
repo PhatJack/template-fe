@@ -16,15 +16,17 @@ const ChatInput = ({ onSubmit, disabled }: ChatInputProps) => {
     const value = prompt.trim();
     if (!value || disabled) return;
 
+    setPrompt("");
+
     try {
-      if (onSubmit) await onSubmit(value);
-      setPrompt("");
+      await onSubmit?.(value);
     } catch (err) {
       console.error(err);
+      setPrompt(value);
     }
   }, [prompt, disabled, onSubmit]);
 
-  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
+  const handleSubmit = async (e: React.SubmitEvent<HTMLFormElement>) => {
     e.preventDefault();
     await sendPrompt();
   };
@@ -50,18 +52,18 @@ const ChatInput = ({ onSubmit, disabled }: ChatInputProps) => {
 
   return (
     <form
-      className="mx-auto w-full"
+      className="mx-auto w-full max-w-4xl"
       aria-label="Template generation prompt"
       onSubmit={handleSubmit}
     >
-      <div className="flex min-h-19.5 flex-col rounded-2xl border border-border bg-surface shadow-[0_1px_3px_rgba(31,33,36,0.08)] transition-colors focus-within:border-primary">
+      <div className="flex min-h-17 flex-col rounded-2xl border border-border bg-surface shadow-[0_1px_3px_rgba(31,33,36,0.08)] transition-colors focus-within:border-primary">
         <label htmlFor="prompt" className="sr-only">
           Ask template.net
         </label>
         <textarea
           id="prompt"
           ref={textareaRef}
-          rows={4}
+          rows={3}
           value={prompt}
           onChange={(e) => setPrompt(e.target.value)}
           placeholder="Ask template.net"
@@ -75,7 +77,7 @@ const ChatInput = ({ onSubmit, disabled }: ChatInputProps) => {
             className="flex size-10 items-center justify-center rounded-full text-foreground transition-colors hover:bg-soft-background cursor-pointer"
             disabled={disabled}
           >
-            <Plus aria-hidden="true" className="h-4 w-4" strokeWidth={2} />
+            <Plus aria-hidden="true" className="size-5" strokeWidth={2} />
           </button>
 
           <button

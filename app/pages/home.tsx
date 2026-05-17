@@ -4,11 +4,11 @@ import { Sidebar } from "~/components/Sidebar";
 
 const HomePage = () => {
   return (
-    <main className="min-h-screen bg-muted-surface font-sans text-foreground">
+    <main className="min-h-screen overflow-hidden bg-muted-surface font-sans text-foreground">
       <Sidebar />
 
-      <section className="relative min-h-screen pl-0 md:pl-17">
-        <header className="absolute left-4 top-4 md:left-32">
+      <section className="relative flex h-screen flex-col pl-0 md:pl-17 w-full">
+        <header className="fixed left-4 top-4 z-50 md:left-32">
           <div className="container">
             <a
               href="/"
@@ -22,7 +22,7 @@ const HomePage = () => {
             </a>
           </div>
         </header>
-        <div className="mx-auto flex min-h-screen w-full max-w-5xl px-3 pb-5 pt-16 md:px-6 md:pt-20">
+        <div className="mx-auto flex h-full min-h-0 w-full overflow-hidden pt-20 md:pt-24">
           <ChatContainer />
         </div>
       </section>

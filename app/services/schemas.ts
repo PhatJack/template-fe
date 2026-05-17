@@ -1,6 +1,5 @@
 import { z } from "zod";
 
-const idSchema = z.string().min(1);
 const dateStringSchema = z.string().min(1);
 
 export const apiErrorResponseSchema = z.object({
@@ -16,7 +15,7 @@ export const createApiResponseSchema = <T extends z.ZodType>(dataSchema: T) =>
   });
 
 export const userSchema = z.object({
-  _id: idSchema,
+  id: z.string(),
   email: z.email(),
   name: z.string().nullable().optional(),
   createdAt: dateStringSchema,
@@ -29,21 +28,21 @@ export const createUserSchema = z.object({
 });
 
 export const conversationSchema = z.object({
-  _id: idSchema,
+  id: z.string(),
   title: z.string().nullable().optional(),
-  userId: idSchema.nullable().optional(),
+  userId: z.string().nullable().optional(),
   createdAt: dateStringSchema,
   updatedAt: dateStringSchema,
 });
 
 export const createConversationSchema = z.object({
-  userId: idSchema,
+  userId: z.string().nullable().optional(),
   prompt: z.string().min(1),
 });
 
 export const updateConversationSchema = z
   .object({
-    userId: idSchema.nullable().optional(),
+    userId: z.string().nullable().optional(),
     title: z.string().nullable().optional(),
   })
   .refine((payload) => Object.keys(payload).length > 0, {
@@ -53,8 +52,8 @@ export const updateConversationSchema = z
 export const messageRoleSchema = z.enum(["USER", "ASSISTANT", "SYSTEM"]);
 
 export const messageSchema = z.object({
-  id: idSchema,
-  conversationId: idSchema,
+  id: z.string(),
+  conversationId: z.string(),
   role: messageRoleSchema,
   content: z.string(),
   createdAt: dateStringSchema,
@@ -62,13 +61,13 @@ export const messageSchema = z.object({
 });
 
 export const createMessageSchema = z.object({
-  conversationId: idSchema,
+  conversationId: z.string(),
   role: messageRoleSchema,
   content: z.string().min(1),
 });
 
 export const generateMessageSchema = z.object({
-  messageId: idSchema,
+  messageId: z.string(),
 });
 
 export const generatedMessageSchema = z.object({
@@ -78,9 +77,9 @@ export const generatedMessageSchema = z.object({
 });
 
 export const fileSchema = z.object({
-  _id: idSchema,
-  conversationId: idSchema,
-  messageId: idSchema.nullable().optional(),
+  id: z.string(),
+  conversationId: z.string(),
+  messageId: z.string().nullable().optional(),
   originalName: z.string(),
   fileName: z.string(),
   mimeType: z.string(),
@@ -91,8 +90,8 @@ export const fileSchema = z.object({
 });
 
 export const createFileSchema = z.object({
-  conversationId: idSchema,
-  messageId: idSchema.nullable().optional(),
+  conversationId: z.string(),
+  messageId: z.string().nullable().optional(),
   originalName: z.string().optional(),
   fileName: z.string().optional(),
   mimeType: z.string().optional(),
