@@ -1,5 +1,5 @@
 import { useQuery } from "@tanstack/react-query";
-import { MessageSquareText } from "lucide-react";
+import { BadgePlus, MessageSquareText } from "lucide-react";
 import { Link, useLocation } from "react-router";
 import { conversationService, type Conversation } from "~/services";
 import { useAuth } from "~/state/auth-context";
@@ -22,12 +22,21 @@ const ConversationContainer = () => {
 
   return (
     <aside className="border-border-light bg-muted-surface hidden h-full w-64 shrink-0 border-r px-3 pb-4 md:block">
-      <div className="mb-3 px-2">
+      <div className="mb-3 flex items-center justify-between px-2">
         <h2 className="text-foreground text-sm font-semibold">Conversations</h2>
+        <Link
+          to={"/"}
+          className="text-foreground hover:bg-primary-hover hover:text-surface flex size-8 items-center justify-center rounded-md p-1"
+        >
+          <span className="sr-only">New conversation</span>
+          <BadgePlus className="size-4" />
+        </Link>
       </div>
 
       <div className="flex flex-col gap-1">
-        {isLoading && <p className="text-muted px-2 py-2 text-xs">Loading...</p>}
+        {isLoading && (
+          <p className="text-muted px-2 py-2 text-xs">Loading...</p>
+        )}
 
         {!isLoading && conversations.length === 0 && (
           <p className="text-muted px-2 py-2 text-xs leading-5">

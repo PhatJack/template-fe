@@ -1,5 +1,10 @@
 # 🚀 Hướng Dẫn Chạy Frontend
 
+## Tài khoản mẫu
+```bash
+email: user1@gmail.com
+password: 12345678
+```
 ## 🛠️ Yêu Cầu Hệ Thống
 
 Trước khi chạy dự án, hãy đảm bảo bạn đã cài đặt:
