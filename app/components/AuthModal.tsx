@@ -1,5 +1,6 @@
 import { useEffect, useState, type SubmitEvent } from "react";
 import { Eye, EyeOff, Loader2, Lock, Mail, UserRound, X } from "lucide-react";
+import { useHotkeys } from "react-hotkeys-hook";
 import { setAccessToken } from "~/lib/auth-token";
 import { authService } from "~/services";
 import { useAuth } from "~/state/auth-context";
@@ -38,13 +39,28 @@ export function AuthModal({
   const [error, setError] = useState<string | null>(null);
   const { refreshCurrentUser } = useAuth();
 
+  useHotkeys(
+    "escape",
+    () => {
+      onClose();
+    },
+    {
+      enabled: open,
+    },
+    [onClose, open],
+  );
+
   useEffect(() => {
     if (!open) {
       return;
     }
 
     setMode(initialMode);
-    setForm(defaultForm);
+    setForm(
+      initialMode === "signin"
+        ? { ...defaultForm, email: "user2@gmail.com", password: "phatdinh" }
+        : defaultForm,
+    );
     setError(null);
     setLoading(false);
     setShowPassword(false);
@@ -55,19 +71,11 @@ export function AuthModal({
       return;
     }
 
-    const handleKeyDown = (event: KeyboardEvent) => {
-      if (event.key === "Escape") {
-        onClose();
-      }
-    };
-
     const previousOverflow = document.body.style.overflow;
     document.body.style.overflow = "hidden";
-    window.addEventListener("keydown", handleKeyDown);
 
     return () => {
       document.body.style.overflow = previousOverflow;
-      window.removeEventListener("keydown", handleKeyDown);
     };
   }, [open, onClose]);
 

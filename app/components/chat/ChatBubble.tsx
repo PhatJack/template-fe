@@ -1,5 +1,5 @@
 import { memo, type ReactNode } from "react";
-import { cn } from "../../lib/utils";
+import { cn, formatFileSize, formatMimeType } from "../../lib/utils";
 import {
   FileAudio,
   File as FileIcon,
@@ -46,27 +46,6 @@ const rotatingTextTransition = {
   damping: 30,
   stiffness: 400,
 };
-
-function formatFileSize(bytes: number) {
-  if (bytes < 1024) return `${bytes} B`;
-  if (bytes < 1024 * 1024) return `${(bytes / 1024).toFixed(1)} KB`;
-
-  return `${(bytes / (1024 * 1024)).toFixed(1)} MB`;
-}
-
-function formatMimeType(mimeType: string) {
-  const [, subtype] = mimeType.split("/");
-  return (subtype || mimeType || "file").toUpperCase();
-}
-
-function isWebUrl(url: string) {
-  try {
-    const parsedUrl = new URL(url);
-    return parsedUrl.protocol === "http:" || parsedUrl.protocol === "https:";
-  } catch {
-    return false;
-  }
-}
 
 function getFileIcon(mimeType: string) {
   if (mimeType.startsWith("image/")) return FileImage;
@@ -115,10 +94,8 @@ const FileAttachment = memo(function FileAttachment({
   return (
     <div
       className={cn(
-        "flex max-w-full min-w-0 items-center gap-2 rounded-xl border px-3 py-2 text-left",
-        isUser
-          ? "border-border-light bg-background text-foreground"
-          : "border-border-light bg-muted-surface",
+        "border-border-light flex max-w-full min-w-0 items-center gap-2 rounded-xl border px-3 py-2 text-left",
+        isUser ? "bg-background text-foreground" : "bg-muted-surface",
       )}
     >
       {content}

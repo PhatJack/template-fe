@@ -14,3 +14,15 @@ export function generateFakeObjectId(): string {
   }
   return result;
 }
+
+export function formatFileSize(bytes: number) {
+  if (bytes < 1024) return `${bytes} B`;
+  if (bytes < 1024 * 1024) return `${(bytes / 1024).toFixed(1)} KB`;
+
+  return `${(bytes / (1024 * 1024)).toFixed(1)} MB`;
+}
+
+export function formatMimeType(mimeType: string) {
+  const [, subtype] = mimeType.split("/");
+  return (subtype || mimeType || "file").toUpperCase();
+}
