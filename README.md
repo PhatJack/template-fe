@@ -4,7 +4,7 @@
 
 Trước khi chạy dự án, hãy đảm bảo bạn đã cài đặt:
 
-### 1. **Node.js** (phiên bản 18 hoặc cao hơn)
+### 1. **Node.js** (phiên bản 22 hoặc cao hơn)
 
 - Tải từ: https://nodejs.org/
 
@@ -12,7 +12,7 @@ Trước khi chạy dự án, hãy đảm bảo bạn đã cài đặt:
 
 Bạn có thể sử dụng một trong ba package manager sau:
 
-#### **pnpm** (phiên bản 8+) - KHUYẾN NGHỊ
+#### **pnpm** (phiên bản 10+) - KHUYẾN NGHỊ
 
 ```bash
 npm install -g pnpm
