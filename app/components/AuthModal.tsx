@@ -1,4 +1,5 @@
 import { useEffect, useState, type SubmitEvent } from "react";
+import { useMutation } from "@tanstack/react-query";
 import { Eye, EyeOff, Loader2, Lock, Mail, UserRound, X } from "lucide-react";
 import { useHotkeys } from "react-hotkeys-hook";
 import { setAccessToken } from "~/lib/auth-token";
@@ -34,10 +35,36 @@ export function AuthModal({
 }: AuthModalProps) {
   const [mode, setMode] = useState<AuthMode>(initialMode);
   const [form, setForm] = useState<FormState>(defaultForm);
-  const [loading, setLoading] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
-  const [error, setError] = useState<string | null>(null);
+  const [validationError, setValidationError] = useState<string | null>(null);
   const { refreshCurrentUser } = useAuth();
+
+  const authMutation = useMutation({
+    mutationFn: async (values: {
+      mode: AuthMode;
+      name: string;
+      email: string;
+      password: string;
+    }) => {
+      if (values.mode === "signup") {
+        return authService.register({
+          name: values.name,
+          email: values.email,
+          password: values.password,
+        });
+      }
+
+      return authService.login({
+        email: values.email,
+        password: values.password,
+      });
+    },
+    onSuccess: async (authResponse) => {
+      setAccessToken(authResponse.accessToken);
+      await refreshCurrentUser();
+      onClose();
+    },
+  });
 
   useHotkeys(
     "escape",
@@ -61,10 +88,10 @@ export function AuthModal({
         ? { ...defaultForm, email: "user2@gmail.com", password: "phatdinh" }
         : defaultForm,
     );
-    setError(null);
-    setLoading(false);
+    setValidationError(null);
     setShowPassword(false);
-  }, [initialMode, open]);
+    authMutation.reset();
+  }, [authMutation, initialMode, open]);
 
   useEffect(() => {
     if (!open) {
@@ -77,7 +104,7 @@ export function AuthModal({
     return () => {
       document.body.style.overflow = previousOverflow;
     };
-  }, [open, onClose]);
+  }, [open]);
 
   if (!open) {
     return null;
@@ -85,62 +112,47 @@ export function AuthModal({
 
   const handleFieldChange = (field: keyof FormState, value: string) => {
     setForm((previous) => ({ ...previous, [field]: value }));
-    setError(null);
+    setValidationError(null);
   };
 
   const isSignUp = mode === "signup";
   const title = isSignUp ? "Create your free account" : "Sign in for free";
   const submitLabel = isSignUp ? "Create account" : "Continue with email";
+  const mutationError = authMutation.error
+    ? authMutation.error instanceof Error
+      ? authMutation.error.message
+      : "Authentication failed."
+    : null;
+  const errorMessage = validationError || mutationError;
 
-  const handleSubmit = async (event: SubmitEvent<HTMLFormElement>) => {
+  const handleSubmit = (event: SubmitEvent<HTMLFormElement>) => {
     event.preventDefault();
 
     const trimmedEmail = form.email.trim();
     const trimmedName = form.name.trim();
 
     if (isSignUp && !trimmedName) {
-      setError("Please enter your name.");
+      setValidationError("Please enter your name.");
       return;
     }
 
     if (!trimmedEmail || !form.password) {
-      setError("Email and password are required.");
+      setValidationError("Email and password are required.");
       return;
     }
 
     if (isSignUp && form.password !== form.confirmPassword) {
-      setError("Passwords do not match.");
+      setValidationError("Passwords do not match.");
       return;
     }
 
-    try {
-      setLoading(true);
-      setError(null);
-
-      const authResponse = isSignUp
-        ? await authService.register({
-            name: trimmedName,
-            email: trimmedEmail,
-            password: form.password,
-          })
-        : await authService.login({
-            email: trimmedEmail,
-            password: form.password,
-          });
-
-      setAccessToken(authResponse.accessToken);
-      await refreshCurrentUser();
-
-      onClose();
-    } catch (authError) {
-      setError(
-        authError instanceof Error
-          ? authError.message
-          : "Authentication failed.",
-      );
-    } finally {
-      setLoading(false);
-    }
+    setValidationError(null);
+    authMutation.mutate({
+      mode,
+      name: trimmedName,
+      email: trimmedEmail,
+      password: form.password,
+    });
   };
 
   return (
@@ -274,18 +286,18 @@ export function AuthModal({
             </div>
           )}
 
-          {error && (
+          {errorMessage && (
             <p className="border-error-border bg-error-surface text-error rounded-xl border px-4 py-3 text-sm">
-              {error}
+              {errorMessage}
             </p>
           )}
 
           <button
             type="submit"
-            disabled={loading}
+            disabled={authMutation.isPending}
             className="bg-primary text-background hover:bg-primary-hover active:bg-primary-active disabled:bg-accent disabled:text-muted flex h-12 w-full items-center justify-center rounded-xl px-6 text-sm font-semibold transition-all disabled:cursor-not-allowed"
           >
-            {loading ? (
+            {authMutation.isPending ? (
               <Loader2 className="size-4 animate-spin" />
             ) : (
               submitLabel

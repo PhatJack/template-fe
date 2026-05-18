@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useRef, useState } from "react";
+import { useMutation, useQuery } from "@tanstack/react-query";
 import ChatInput from "./ChatInput";
 import { ChatBubble } from "./ChatBubble";
 import {
@@ -10,6 +11,7 @@ import {
 } from "~/services";
 import { generateFakeObjectId } from "~/lib/utils";
 import { useAuth } from "~/state/auth-context";
+import { getQueryClient } from "~/lib/query-client";
 
 type UiMessage = {
   id: string;
@@ -23,6 +25,11 @@ type UiMessage = {
 
 type ChatContainerProps = {
   conversationId?: string;
+};
+
+type SendMessageInput = {
+  prompt: string;
+  files?: File[];
 };
 
 function mapMessageToUiMessage(message: Message): UiMessage {
@@ -74,14 +81,183 @@ export function ChatContainer({
     state: { currentUser },
   } = useAuth();
   const currentUserId = currentUser?.id;
+  const queryClient = getQueryClient();
   const [messages, setMessages] = useState<UiMessage[]>([]);
   const [conversationId, setConversationId] = useState<string | undefined>(
     initialConversationId,
   );
-  const [loading, setLoading] = useState(false);
   const containerRef = useRef<HTMLDivElement | null>(null);
   const streamRef = useRef<EventSource | null>(null);
   const previousUserIdRef = useRef<string | undefined>(currentUserId);
+
+  const messagesQuery = useQuery({
+    queryKey: ["messages", conversationId],
+    queryFn: () => messageService.listMessages(conversationId!),
+    enabled: !!conversationId,
+  });
+
+  const sendMessageMutation = useMutation({
+    mutationFn: async ({ prompt, files }: SendMessageInput) => {
+      let convId = conversationId;
+      const userPlaceholderId = generateFakeObjectId();
+      const assistantPlaceholderId = generateFakeObjectId();
+      const userCreatedAt = new Date().toISOString();
+      const assistantCreatedAt = new Date().toISOString();
+
+      try {
+        if (!convId) {
+          const conversation = await conversationService.createConversation({
+            userId: currentUserId ?? generateFakeObjectId(),
+            prompt,
+          });
+          convId = conversation.id;
+          setConversationId(convId);
+        }
+
+        setMessages((prev) => [
+          ...prev,
+          {
+            id: userPlaceholderId,
+            role: "user",
+            author: "You",
+            timestamp: userCreatedAt,
+            content: prompt,
+            files: createPreviewFileRecords(
+              files,
+              convId,
+              userPlaceholderId,
+              userCreatedAt,
+            ),
+          },
+          {
+            id: assistantPlaceholderId,
+            role: "assistant",
+            author: "Template.net AI",
+            timestamp: assistantCreatedAt,
+            content: "",
+            status: "loading",
+          },
+        ]);
+
+        const created = await messageService.createMessage({
+          conversationId: convId,
+          role: "USER",
+          content: prompt,
+        });
+
+        if (files?.length) {
+          const uploadedFiles = await fileService.uploadFiles({
+            conversationId: convId,
+            messageId: created.id,
+            files,
+          });
+
+          setMessages((prev) =>
+            prev.map((message) =>
+              message.id === userPlaceholderId
+                ? {
+                    ...message,
+                    files: uploadedFiles,
+                  }
+                : message,
+            ),
+          );
+        }
+
+        setMessages((prev) =>
+          prev.map((message) =>
+            message.id === userPlaceholderId
+              ? {
+                  ...message,
+                  id: created.id,
+                  timestamp: created.createdAt,
+                }
+              : message,
+          ),
+        );
+
+        streamRef.current?.close();
+
+        await new Promise<void>((resolve, reject) => {
+          streamRef.current = messageService.streamMessage(
+            { messageId: created.id },
+            {
+              onChunk: (text) => {
+                setMessages((prev) =>
+                  prev.map((message) =>
+                    message.id === assistantPlaceholderId
+                      ? {
+                          ...message,
+                          content: `${message.content}${text}`,
+                          status: "streaming",
+                        }
+                      : message,
+                  ),
+                );
+              },
+              onDone: ({ assistantMessage }) => {
+                setMessages((prev) =>
+                  prev.map((message) =>
+                    message.id === assistantPlaceholderId
+                      ? {
+                          id: assistantMessage.id,
+                          role: "assistant",
+                          author: "Template.net AI",
+                          timestamp: assistantMessage.createdAt,
+                          content: assistantMessage.content,
+                          files: assistantMessage.files ?? [],
+                        }
+                      : message,
+                  ),
+                );
+                streamRef.current = null;
+                resolve();
+              },
+              onError: (error) => {
+                console.error("Message stream failed", error);
+                setMessages((prev) =>
+                  prev.filter(
+                    (message) => message.id !== assistantPlaceholderId,
+                  ),
+                );
+                streamRef.current = null;
+                reject(error);
+              },
+            },
+          );
+        });
+
+        return convId;
+      } catch (error) {
+        if (userPlaceholderId || assistantPlaceholderId) {
+          setMessages((prev) =>
+            prev.filter(
+              (message) =>
+                message.id !== userPlaceholderId &&
+                message.id !== assistantPlaceholderId,
+            ),
+          );
+        }
+
+        streamRef.current?.close();
+        streamRef.current = null;
+        throw error;
+      }
+    },
+    onSuccess: async (convId) => {
+      if (convId) {
+        await queryClient.invalidateQueries({
+          queryKey: ["messages", convId],
+        });
+      }
+
+      if (currentUserId) {
+        await queryClient.invalidateQueries({
+          queryKey: ["conversations", currentUserId],
+        });
+      }
+    },
+  });
 
   useEffect(() => {
     const container = containerRef.current;
@@ -105,36 +281,23 @@ export function ChatContainer({
       streamRef.current = null;
       setConversationId(undefined);
       setMessages([]);
-      setLoading(false);
     }
 
     previousUserIdRef.current = currentUserId;
   }, [currentUserId]);
 
   useEffect(() => {
-    if (loading || !currentUserId) return;
-
-    let ignore = false;
-
-    async function loadMessages(id: string) {
-      try {
-        const msgs = await messageService.listMessages(id);
-        if (!ignore) {
-          setMessages(mapMessagesToUiMessages(msgs));
-        }
-      } catch (err) {
-        console.error("Failed to load messages", err);
-      }
+    if (sendMessageMutation.isPending) {
+      return;
     }
 
-    if (conversationId) {
-      void loadMessages(conversationId);
+    if (!messagesQuery.data) {
+      setMessages([]);
+      return;
     }
 
-    return () => {
-      ignore = true;
-    };
-  }, [conversationId, currentUserId, loading]);
+    setMessages(mapMessagesToUiMessages(messagesQuery.data));
+  }, [messagesQuery.data, sendMessageMutation.isPending]);
 
   useEffect(() => {
     return () => {
@@ -144,143 +307,11 @@ export function ChatContainer({
 
   const handleSend = useCallback(
     async (prompt: string, files?: File[]) => {
-      if (!prompt || loading) return;
-      setLoading(true);
+      if (!prompt || sendMessageMutation.isPending) return;
 
-      const userPlaceholderId = generateFakeObjectId();
-      const userCreatedAt = new Date().toISOString();
-      const userUi: UiMessage = {
-        id: userPlaceholderId,
-        role: "user",
-        author: "You",
-        timestamp: userCreatedAt,
-        content: prompt,
-        files: createPreviewFileRecords(
-          files,
-          conversationId,
-          userPlaceholderId,
-          userCreatedAt,
-        ),
-      };
-
-      const assistantPlaceholderId = generateFakeObjectId();
-      const assistantUi: UiMessage = {
-        id: assistantPlaceholderId,
-        role: "assistant",
-        author: "Template.net AI",
-        timestamp: new Date().toISOString(),
-        content: "",
-        status: "loading",
-      };
-
-      setMessages((prev) => [...prev, userUi, assistantUi]);
-
-      try {
-        let convId = conversationId;
-
-        if (!convId) {
-          const conv = await conversationService.createConversation({
-            userId: currentUserId ?? generateFakeObjectId(),
-            prompt,
-          });
-          convId = conv.id;
-          setConversationId(convId);
-        }
-
-        // create the user message
-        const created = await messageService.createMessage({
-          conversationId: convId!,
-          role: "USER",
-          content: prompt,
-        });
-        if (files?.length) {
-          const uploadedFiles = await fileService.uploadFiles({
-            conversationId: convId!,
-            messageId: created.id,
-            files,
-          });
-          setMessages((prev) =>
-            prev.map((message) =>
-              message.id === userPlaceholderId
-                ? {
-                    ...message,
-                    files: uploadedFiles,
-                  }
-                : message,
-            ),
-          );
-        }
-        setMessages((prev) =>
-          prev.map((message) =>
-            message.id === userPlaceholderId
-              ? {
-                  ...message,
-                  id: created.id,
-                  timestamp: created.createdAt,
-                }
-              : message,
-          ),
-        );
-        streamRef.current?.close();
-        streamRef.current = messageService.streamMessage(
-          { messageId: created.id },
-          {
-            onChunk: (text) => {
-              setMessages((prev) =>
-                prev.map((message) =>
-                  message.id === assistantPlaceholderId
-                    ? {
-                        ...message,
-                        content: `${message.content}${text}`,
-                        status: "streaming",
-                      }
-                    : message,
-                ),
-              );
-            },
-            onDone: ({ assistantMessage }) => {
-              setMessages((prev) =>
-                prev.map((message) =>
-                  message.id === assistantPlaceholderId
-                    ? {
-                        id: assistantMessage.id,
-                        role: "assistant",
-                        author: "Template.net AI",
-                        timestamp: assistantMessage.createdAt,
-                        content: assistantMessage.content,
-                        files: assistantMessage.files ?? [],
-                      }
-                    : message,
-                ),
-              );
-              streamRef.current = null;
-              setLoading(false);
-            },
-            onError: (error) => {
-              console.error("Message stream failed", error);
-              setMessages((prev) =>
-                prev.filter((message) => message.id !== assistantPlaceholderId),
-              );
-              streamRef.current = null;
-              setLoading(false);
-            },
-          },
-        );
-      } catch (err) {
-        console.error("Send failed", err);
-        setMessages((prev) =>
-          prev.filter(
-            (message) =>
-              message.id !== userPlaceholderId &&
-              message.id !== assistantPlaceholderId,
-          ),
-        );
-        streamRef.current?.close();
-        streamRef.current = null;
-        setLoading(false);
-      }
+      await sendMessageMutation.mutateAsync({ prompt, files });
     },
-    [conversationId, currentUserId, loading],
+    [sendMessageMutation],
   );
 
   return (
@@ -307,7 +338,10 @@ export function ChatContainer({
       </div>
 
       <div className="bg-muted-surface sticky right-0 bottom-0 left-0 z-40 pt-10 pb-4">
-        <ChatInput onSubmit={handleSend} disabled={loading} />
+        <ChatInput
+          onSubmit={handleSend}
+          disabled={sendMessageMutation.isPending}
+        />
       </div>
     </section>
   );

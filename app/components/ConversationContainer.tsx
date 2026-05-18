@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useQuery } from "@tanstack/react-query";
 import { MessageSquareText } from "lucide-react";
 import { Link, useLocation } from "react-router";
 import { conversationService, type Conversation } from "~/services";
@@ -10,46 +10,11 @@ const ConversationContainer = () => {
     state: { currentUser },
   } = useAuth();
   const location = useLocation();
-  const [conversations, setConversations] = useState<Conversation[]>([]);
-  const [loading, setLoading] = useState(false);
-
-  useEffect(() => {
-    if (!currentUser) {
-      setConversations([]);
-      return;
-    }
-
-    let ignore = false;
-
-    async function loadConversations() {
-      try {
-        setLoading(true);
-        const items = await conversationService.listConversations(
-          currentUser!.id,
-        );
-
-        if (!ignore) {
-          setConversations(items);
-        }
-      } catch (error) {
-        console.error("Failed to load conversations", error);
-
-        if (!ignore) {
-          setConversations([]);
-        }
-      } finally {
-        if (!ignore) {
-          setLoading(false);
-        }
-      }
-    }
-
-    void loadConversations();
-
-    return () => {
-      ignore = true;
-    };
-  }, [currentUser]);
+  const { data: conversations = [], isLoading } = useQuery<Conversation[]>({
+    queryKey: ["conversations", currentUser?.id],
+    queryFn: () => conversationService.listConversations(currentUser!.id),
+    enabled: !!currentUser,
+  });
 
   if (!currentUser) {
     return null;
@@ -62,9 +27,9 @@ const ConversationContainer = () => {
       </div>
 
       <div className="flex flex-col gap-1">
-        {loading && <p className="text-muted px-2 py-2 text-xs">Loading...</p>}
+        {isLoading && <p className="text-muted px-2 py-2 text-xs">Loading...</p>}
 
-        {!loading && conversations.length === 0 && (
+        {!isLoading && conversations.length === 0 && (
           <p className="text-muted px-2 py-2 text-xs leading-5">
             No conversations yet.
           </p>
