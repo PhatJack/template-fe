@@ -83,15 +83,11 @@ export function AuthModal({
     }
 
     setMode(initialMode);
-    setForm(
-      initialMode === "signin"
-        ? { ...defaultForm, email: "user2@gmail.com", password: "phatdinh" }
-        : defaultForm,
-    );
+    setForm(defaultForm);
     setValidationError(null);
     setShowPassword(false);
     authMutation.reset();
-  }, [authMutation, initialMode, open]);
+  }, [open, initialMode]);
 
   useEffect(() => {
     if (!open) {
@@ -290,6 +286,30 @@ export function AuthModal({
             <p className="border-error-border bg-error-surface text-error rounded-xl border px-4 py-3 text-sm">
               {errorMessage}
             </p>
+          )}
+
+          {!isSignUp && (
+            <div className="space-y-2">
+              <button
+                type="button"
+                onClick={() =>
+                  authMutation.mutate({
+                    mode: "signin",
+                    name: "",
+                    email: "user1@gmail.com",
+                    password: "123456",
+                  })
+                }
+                disabled={authMutation.isPending}
+                className="border-border text-primary hover:border-primary hover:bg-primary/5 w-full cursor-pointer rounded-xl border px-4 py-2 text-sm font-medium transition-colors disabled:cursor-not-allowed disabled:opacity-50"
+              >
+                {authMutation.isPending ? (
+                  <Loader2 className="inline size-4 animate-spin" />
+                ) : (
+                  "Use sample account"
+                )}
+              </button>
+            </div>
           )}
 
           <button

@@ -122,7 +122,7 @@ const ChatInput = memo(function ChatInput({
     if (isExpanded) {
       resizeTextarea(300);
     } else {
-      resizeTextarea(60);
+      resizeTextarea(54);
     }
   }, [isExpanded, resizeTextarea]);
 
