@@ -15,6 +15,7 @@ import {
   Video,
 } from "lucide-react";
 import type { LucideIcon } from "lucide-react";
+import { useNavigate } from "react-router";
 import { cn } from "../lib/utils";
 import { useAuth } from "~/state/auth-context";
 
@@ -88,11 +89,16 @@ type SidebarProps = {
 };
 
 export function Sidebar({ onSignInClick }: SidebarProps) {
+  const navigate = useNavigate();
   const {
     state: { currentUser },
     logout,
   } = useAuth();
   const userDisplayName = currentUser?.name?.trim() || currentUser?.email;
+  const handleLogout = () => {
+    logout();
+    navigate("/", { replace: true });
+  };
 
   return (
     <aside className="bg-soft-background fixed inset-y-0 left-0 z-100 hidden w-17 flex-col items-center py-4 md:flex">
@@ -123,7 +129,7 @@ export function Sidebar({ onSignInClick }: SidebarProps) {
             )}
             <button
               type="button"
-              onClick={logout}
+              onClick={handleLogout}
               className="text-tiny text-foreground hover:text-primary max-w-16 cursor-pointer truncate text-center transition-colors"
             >
               <span className="flex size-9 items-center justify-center rounded-full">

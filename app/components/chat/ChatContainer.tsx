@@ -81,6 +81,7 @@ export function ChatContainer({
   const [loading, setLoading] = useState(false);
   const containerRef = useRef<HTMLDivElement | null>(null);
   const streamRef = useRef<EventSource | null>(null);
+  const previousUserIdRef = useRef<string | undefined>(currentUserId);
 
   useEffect(() => {
     const container = containerRef.current;
@@ -97,21 +98,43 @@ export function ChatContainer({
   }, [initialConversationId]);
 
   useEffect(() => {
-    if (loading) return;
+    const previousUserId = previousUserIdRef.current;
+
+    if (previousUserId && previousUserId !== currentUserId) {
+      streamRef.current?.close();
+      streamRef.current = null;
+      setConversationId(undefined);
+      setMessages([]);
+      setLoading(false);
+    }
+
+    previousUserIdRef.current = currentUserId;
+  }, [currentUserId]);
+
+  useEffect(() => {
+    if (loading || !currentUserId) return;
+
+    let ignore = false;
 
     async function loadMessages(id: string) {
       try {
         const msgs = await messageService.listMessages(id);
-        setMessages(mapMessagesToUiMessages(msgs));
+        if (!ignore) {
+          setMessages(mapMessagesToUiMessages(msgs));
+        }
       } catch (err) {
         console.error("Failed to load messages", err);
       }
     }
 
     if (conversationId) {
-      loadMessages(conversationId);
+      void loadMessages(conversationId);
     }
-  }, [conversationId, loading]);
+
+    return () => {
+      ignore = true;
+    };
+  }, [conversationId, currentUserId, loading]);
 
   useEffect(() => {
     return () => {
