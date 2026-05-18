@@ -1,43 +1,91 @@
-# Welcome to React Router!
+# 🚀 Hướng Dẫn Chạy Frontend
 
-A modern, production-ready template for building full-stack React applications using React Router.
+## 🛠️ Yêu Cầu Hệ Thống
 
-[![Open in StackBlitz](https://developer.stackblitz.com/img/open_in_stackblitz.svg)](https://stackblitz.com/github/remix-run/react-router-templates/tree/main/default)
+Trước khi chạy dự án, hãy đảm bảo bạn đã cài đặt:
 
-## Features
+### 1. **Node.js** (phiên bản 18 hoặc cao hơn)
 
-- 🚀 Server-side rendering
-- ⚡️ Hot Module Replacement (HMR)
-- 📦 Asset bundling and optimization
-- 🔄 Data loading and mutations
-- 🔒 TypeScript by default
-- 🎉 TailwindCSS for styling
-- 📖 [React Router docs](https://reactrouter.com/)
+- Tải từ: https://nodejs.org/
 
-## Getting Started
+### 2. Chọn Package Manager
 
-### Installation
+Bạn có thể sử dụng một trong ba package manager sau:
 
-Install the dependencies:
+#### **pnpm** (phiên bản 8+) - KHUYẾN NGHỊ
 
 ```bash
-pnpm install
+npm install -g pnpm
+pnpm --version
 ```
 
-### Development
+#### **npm** (phiên bản 9+) - Mặc định với Node.js
 
-Start the development server with HMR:
+```bash
+npm --version
+```
+
+#### **yarn** (phiên bản 3+)
+
+```bash
+npm install -g yarn
+yarn --version
+```
+
+### Kiểm Tra Cài Đặt
+
+```bash
+node --version
+pnpm --version  # hoặc: npm --version, yarn --version
+```
+
+---
+
+## 📦 Bước 1: Cài Đặt Thư Viện
+
+Chạy từ thư mục `template-fe`:
+
+**Với pnpm (khuyến nghị):**
+
+```bash
+cd template-fe
+`pnpm | npm | yarn` install
+```
+
+**Với npm:**
+
+```bash
+cd template-fe
+npm install
+```
+
+**Với yarn:**
+
+```bash
+cd template-fe
+yarn install
+```
+
+---
+
+## 🚀 Bước 2: Chạy Development Server
+
+**Với pnpm:**
 
 ```bash
 pnpm run dev
 ```
 
-Your application will be available at `http://localhost:5173`.
-
-## Building for Production
-
-Create a production build:
+**Với npm:**
 
 ```bash
-pnpm run build
+npm run dev
 ```
+
+**Với yarn:**
+
+```bash
+yarn dev
+```
+
+Xong! 🎉 Ứng dụng sẽ chạy tại **http://localhost:5173**
