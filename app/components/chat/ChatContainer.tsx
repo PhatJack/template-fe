@@ -16,7 +16,6 @@ import { getQueryClient } from "~/lib/query-client";
 type UiMessage = {
   id: string;
   role: "assistant" | "user";
-  author: string;
   timestamp?: string;
   content: string;
   files?: FileRecord[];
@@ -38,7 +37,6 @@ function mapMessageToUiMessage(message: Message): UiMessage {
   return {
     id: message.id,
     role: isAssistant ? "assistant" : "user",
-    author: isAssistant ? "Template.net AI" : "You",
     timestamp: message.createdAt || undefined,
     content: message.content,
     files: message.files ?? [],
@@ -119,7 +117,6 @@ export function ChatContainer({
           {
             id: userPlaceholderId,
             role: "user",
-            author: "You",
             timestamp: userCreatedAt,
             content: prompt,
             files: createPreviewFileRecords(
@@ -132,7 +129,6 @@ export function ChatContainer({
           {
             id: assistantPlaceholderId,
             role: "assistant",
-            author: "Template.net AI",
             timestamp: assistantCreatedAt,
             content: "",
             status: "loading",
@@ -202,7 +198,6 @@ export function ChatContainer({
                       ? {
                           id: assistantMessage.id,
                           role: "assistant",
-                          author: "Template.net AI",
                           timestamp: assistantMessage.createdAt,
                           content: assistantMessage.content,
                           files: assistantMessage.files ?? [],
@@ -327,8 +322,6 @@ export function ChatContainer({
           <ChatBubble
             key={message.id}
             role={message.role}
-            author={message.author}
-            timestamp={message.timestamp}
             loading={message.status === "loading"}
             files={message.files}
           >

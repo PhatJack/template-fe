@@ -21,8 +21,6 @@ export type ChatBubbleRole = "assistant" | "user";
 type ChatBubbleProps = {
   role: ChatBubbleRole;
   children: ReactNode;
-  author?: string;
-  timestamp?: string;
   loading?: boolean;
   files?: FileRecord[];
 };
@@ -37,7 +35,7 @@ const loadingTexts = [
   "Analyzing your request",
   "Thinking",
   "Understanding your prompt",
-  "Generating response",
+  "Generating...",
   "Almost done",
   "Preparing the final response",
 ];
@@ -109,12 +107,11 @@ const FileAttachment = memo(function FileAttachment({
 export const ChatBubble = memo(function ChatBubble({
   role,
   children,
-  author,
-  timestamp,
   loading,
   files,
 }: ChatBubbleProps) {
   const isUser = role === "user";
+  const author = isUser ? null : "Template.net AI";
   const hasFiles = Boolean(files?.length);
   const content = typeof children === "string" ? children : "";
   const [copiedText, copy] = useCopyToClipboard();
@@ -131,16 +128,14 @@ export const ChatBubble = memo(function ChatBubble({
         isUser ? "items-end" : "items-start",
       )}
     >
-      {(author || timestamp) && (
+      {author && (
         <div
           className={cn(
             "text-muted-surface flex max-w-[85%] items-center gap-2 text-sm leading-4.5",
             isUser ? "justify-end" : "justify-start",
           )}
         >
-          {author && !isUser && (
-            <span className="text-foreground font-medium">{author}</span>
-          )}
+          <span className="text-foreground font-medium">{author}</span>
         </div>
       )}
 
