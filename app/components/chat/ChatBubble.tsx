@@ -6,12 +6,15 @@ import {
   FileImage,
   FileText,
   FileVideo,
+  Copy,
+  Check,
   Loader2,
 } from "lucide-react";
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
 import type { FileRecord } from "~/services";
 import RotatingText from "../ui/RotatingText";
+import { useCopyToClipboard } from "~/hooks/useCopyToClipBoard";
 
 export type ChatBubbleRole = "assistant" | "user";
 
@@ -113,11 +116,18 @@ export const ChatBubble = memo(function ChatBubble({
 }: ChatBubbleProps) {
   const isUser = role === "user";
   const hasFiles = Boolean(files?.length);
+  const content = typeof children === "string" ? children : "";
+  const [copiedText, copy] = useCopyToClipboard();
+  const isCopied = copiedText === content;
+
+  const handleCopy = async () => {
+    await copy(content);
+  };
 
   return (
     <div
       className={cn(
-        "flex w-full flex-col gap-2",
+        "group relative flex w-full flex-col gap-2 py-2",
         isUser ? "items-end" : "items-start",
       )}
     >
@@ -152,7 +162,7 @@ export const ChatBubble = memo(function ChatBubble({
           "flex w-full flex-col gap-3 rounded-2xl py-3 text-sm leading-5 shadow-none",
           isUser
             ? "bg-primary text-background w-fit max-w-[80%] rounded-br-sm px-4"
-            : "text-foreground pr-4",
+            : "text-foreground pr-10",
         )}
       >
         {loading ? (
@@ -183,6 +193,22 @@ export const ChatBubble = memo(function ChatBubble({
           </div>
         )}
       </div>
+      {!loading && content && (
+        <button
+          type="button"
+          aria-label="Copy message"
+          className={cn(
+            "border-border-light bg-background hover:bg-soft-background text-foreground flex size-10 cursor-pointer items-center justify-center rounded-full border opacity-0 shadow-sm transition-all duration-150 group-hover:opacity-100 hover:opacity-100 focus-visible:opacity-100",
+          )}
+          onClick={handleCopy}
+        >
+          {isCopied ? (
+            <Check aria-hidden="true" className="size-4" />
+          ) : (
+            <Copy aria-hidden="true" className="size-4" />
+          )}
+        </button>
+      )}
     </div>
   );
 });

@@ -321,7 +321,7 @@ export function ChatContainer({
     >
       <div
         ref={containerRef}
-        className="custom-scrollbar flex min-h-0 w-full flex-1 flex-col gap-4 overflow-y-auto scroll-smooth py-6"
+        className="custom-scrollbar flex min-h-0 w-full flex-1 flex-col overflow-y-auto scroll-smooth py-6"
       >
         {messages.map((message) => (
           <ChatBubble
