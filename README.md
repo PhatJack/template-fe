@@ -1,96 +1,69 @@
 # 🚀 Hướng Dẫn Chạy Frontend
 
-## Tài khoản mẫu
-```bash
-email: user1@gmail.com
-password: 12345678
-```
-## 🛠️ Yêu Cầu Hệ Thống
+Frontend được xây dựng bằng **React**, **TypeScript** và **Vite**.
 
-Trước khi chạy dự án, hãy đảm bảo bạn đã cài đặt:
+---
 
-### 1. **Node.js** (phiên bản 22 hoặc cao hơn)
+## 🔑 Tài Khoản Demo
 
-- Tải từ: https://nodejs.org/
-
-### 2. Chọn Package Manager
-
-Bạn có thể sử dụng một trong ba package manager sau:
-
-#### **pnpm** (phiên bản 10+) - KHUYẾN NGHỊ
-
-```bash
-npm install -g pnpm
-pnpm --version
-```
-
-#### **npm** (phiên bản 9+) - Mặc định với Node.js
-
-```bash
-npm --version
-```
-
-#### **yarn** (phiên bản 3+)
-
-```bash
-npm install -g yarn
-yarn --version
-```
-
-### Kiểm Tra Cài Đặt
-
-```bash
-node --version
-pnpm --version  # hoặc: npm --version, yarn --version
+```txt
+Email: user1@gmail.com
+Password: 12345678
 ```
 
 ---
 
-## 📦 Bước 1: Cài Đặt Thư Viện
+## 📋 Yêu Cầu Hệ Thống
 
-Chạy từ thư mục `template-fe`:
+- Node.js >= 22
+- pnpm / npm / yarn
 
-**Với pnpm (khuyến nghị):**
+---
+
+## ⚡ Chạy Nhanh Dự Án
+
+### 1. Cài đặt thư viện
 
 ```bash
-cd template-fe
-`pnpm | npm | yarn` install
+pnpm install
 ```
 
-**Với npm:**
+> Có thể thay bằng `npm install` hoặc `yarn install`
+
+---
+
+### 2. Chạy development server
 
 ```bash
-cd template-fe
-npm install
+pnpm dev
 ```
 
-**Với yarn:**
+> Có thể thay bằng `npm dev` hoặc `yarn dev`
 
-```bash
-cd template-fe
-yarn install
+Frontend sẽ chạy tại:
+
+```txt
+http://localhost:5173
 ```
 
 ---
 
-## 🚀 Bước 2: Chạy Development Server
-
-**Với pnpm:**
+## 📦 Các Script Có Sẵn
 
 ```bash
-pnpm run dev
+pnpm dev      # chạy môi trường development
+pnpm build    # build project
+pnpm preview  # preview bản production
 ```
 
-**Với npm:**
+---
 
-```bash
-npm run dev
-```
+## 🛠️ Công Nghệ Sử Dụng
 
-**Với yarn:**
-
-```bash
-yarn dev
-```
-
-Xong! 🎉 Ứng dụng sẽ chạy tại **http://localhost:5173**
+- React
+- TypeScript
+- Vite
+- TailwindCSS
+- TanStack Router
+- React Query
+- Axios
